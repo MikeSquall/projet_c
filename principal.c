@@ -4,7 +4,6 @@
 #define NBSOMMETS 1000
 #define TAILLE_NOM_FICHIER 100
 #define TAILLE_NOM 50
-#define NB_COLONNES 2
 #define NON_TROUVE -1
 #define INCONNU -1
 #define INFINI 99999
