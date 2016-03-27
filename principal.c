@@ -27,19 +27,32 @@ struct jonction
 
 /* appel des procédures et fonctions */
 int init_jonction() 										 ;
+int init_rues_distances()									 ;
 void recherche_nom_rue()									 ;
 
 /* variables globales */
-Jonction tab_jonctions[NB_JONCTIONS]; // tableau listant toutes le jonctions
+
+// tableau listant toutes les jonctions 
+Jonction tab_jonctions[NB_JONCTIONS]; 
+
+// tableau représentant la matrice des noms des rues selon les jonctions, sert à récupérer le contenu du fichier de noms des rues
+char tab_noms_rues[NB_JONCTIONS][NB_JONCTIONS][TAILLE_NOM_JONCTION]; // 3e dimension est pour la taille des string stockés (possibilité de l'enlever et de mettre un pointeur mais attention à faire les malloc lors d'insertion)
+
+// équivalent à tab_noms_rues mais pour les distances
+int tab_longueur[NB_JONCTIONS][NB_JONCTIONS]; // 
+
+// variable de parcours 
 int nbjonction = 0;
+
+
 /* programme principal */
 
 int main(int argc, char const *argv[])
 {
 	printf("%d\n", init_jonction());
-	for(int i = 0; i < 11; i++){
-		printf("%s\n", tab_jonctions[i].nom);
-	}
+	
+	printf("%d\n", init_rues_distances());
+
 }
 
 /* code des procédures et fonctions */
@@ -70,13 +83,48 @@ int init_jonction()
 	return test_init ;
 }
 
+/* initialisation des noms des rues et de leur longueur */
+
+int init_rues_distances()
+{
+	int test_init = 0;
+	char nom_rue[TAILLE_NOM_JONCTION];
+	FILE *fichier_noms = fopen("jeu_test/test_noms_rues.txt","r");
+	FILE *fichier_longueur = fopen("jeu_test/test_longueurs.txt","r");
+
+	// test ouverture fichiers
+	if (fichier_noms == NULL || fichier_longueur == NULL)
+	{	
+		// si ouverture fichier ko 
+		test_init = NON_TROUVE;
+		if (fichier_noms == NULL){
+			printf("Erreur de chargement du fichier des noms de rues.\n");	
+		} else {
+			printf("Erreur de chargement du fichier des longueurs de rues.\n");
+		}
+	} else {
+		// si ouverture fichier ok
+		// double boucle de parcours pour les affecter les données des fichiers 
+		for(int i = 0; i < nbjonction; i++){
+			for(int j = 0; j < nbjonction; j++){
+				fscanf(fichier_noms,"%s", nom_rue); // dans matrice des noms
+				strcpy(tab_noms_rues[i][j], nom_rue);
+				fscanf(fichier_longueur, "%d", &tab_longueur[i][j]); // dans matrice des longueurs
+			}
+		}
+	}
+	fclose(fichier_noms);
+	fclose(fichier_longueur);
+	return test_init;
+}
+
 /* recherche nom rue suite à saisie utilisateur */
 
 void recherche_nom_rue(char contexte[20]) 
 {
-	int j = 0 								;
-	char nom_rue[50]						;
-	char tab_affichage[100][NB_JONCTIONS]	;
+	int j = 0 										;
+	char nom_rue[TAILLE_NOM_JONCTION]				;
+	char tab_affichage[NB_JONCTIONS][NB_JONCTIONS]	;
 	char *test ;
 
 	printf("Rue %s : ", contexte);
