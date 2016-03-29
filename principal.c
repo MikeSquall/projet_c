@@ -28,7 +28,7 @@ struct jonction
 /* appel des procédures et fonctions */
 int init_jonction() 										 ;
 int init_rues_distances()									 ;
-void recherche_nom_rue()									 ;
+int recherche_nom_rue()									 ;
 
 /* variables globales */
 
@@ -49,9 +49,16 @@ int nbjonction = 0;
 
 int main(int argc, char const *argv[])
 {
-	printf("%d\n", init_jonction());
+	int point_depart, point_arrivee;
+	if (init_jonction() != NON_TROUVE) {
+		if (init_rues_distances() != NON_TROUVE) {
+			point_depart = recherche_nom_rue("de départ");
+			point_arrivee = recherche_nom_rue("d'arrivée");
+			printf("départ %d\n", point_depart);
+			printf("arrivée %d\n", point_arrivee);
+		}
+	}
 	
-	printf("%d\n", init_rues_distances());
 
 }
 
@@ -120,23 +127,52 @@ int init_rues_distances()
 
 /* recherche nom rue suite à saisie utilisateur */
 
-void recherche_nom_rue(char contexte[20]) 
+int recherche_nom_rue(char contexte[20]) 
 {
-	int j = 0 										;
+	int choix_ok = 0, purge, nb_result = 0			;
+	int choix = NON_TROUVE, test_saisie_char = 0 	;
 	char nom_rue[TAILLE_NOM_JONCTION]				;
-	char tab_affichage[NB_JONCTIONS][NB_JONCTIONS]	;
-	char *test ;
+	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
 	printf("Rue %s : ", contexte);
 	scanf("%s", nom_rue);
 
-	for(int i = 0 ; i < nbjonction ; i++)
+	for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
 	{
 		test = strcasestr(tab_jonctions[i].nom, nom_rue) ;
 		if(test != NULL)
 		{
-			printf("%2d - %-s\n", j+1, tab_jonctions[i].nom);
-			j++ ;
+			nb_result++;
+			printf("%-s\n", tab_jonctions[i].nom);
+			strcpy(tab_result[i], tab_jonctions[i].nom);
 		}
 	}
+	
+	printf("\nEntrez le numéro de votre point %s : ", contexte) ;
+	while(!choix_ok) // boucle de vérification de la saisie
+	{
+		test_saisie_char = scanf("%d",&choix) ;
+		if(test_saisie_char)
+		{
+			for(int i = 0 ; i < NB_JONCTIONS ; i++)
+			{
+				if (choix == atoi(tab_result[i])) 
+				{
+					choix_ok = 1 ;
+					printf("%s\n", tab_result[i]);
+				}
+			}
+		}
+		else 
+		{
+			while((purge = fgetc(stdin)) != '\n' && purge != EOF) {}
+		}
+
+		if (!choix_ok) 
+		{
+			printf("Choix erroné. Merci de renseigner un numéro valide : ");
+		}
+	}
+	return choix;
+
 }
