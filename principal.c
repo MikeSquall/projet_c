@@ -26,9 +26,9 @@ struct jonction
 };
 
 /* appel des procédures et fonctions */
-int init_jonction() 										 ;
-int init_rues_distances()									 ;
-int recherche_nom_rue()									 ;
+int init_jonction() 			 ;
+int init_rues_distances()		 ;
+int recherche_nom_rue()			 ;
 
 /* variables globales */
 
@@ -156,7 +156,7 @@ int recherche_nom_rue(char contexte[20])
 		{
 			for(int i = 0 ; i < NB_JONCTIONS ; i++)
 			{
-				if (choix == atoi(tab_result[i])) 
+				if (choix == atoi(tab_result[i]) && choix != 0) 
 				{
 					choix_ok = 1 ;
 					printf("%s\n", tab_result[i]);
