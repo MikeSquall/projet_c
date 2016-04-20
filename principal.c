@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define NB_JONCTIONS 700 // à modifier une fois que nombre de jonctions défini
 #define TAILLE_NOM_FICHIER 100 // vérifier taille max d'un nom de fichier 
-#define TAILLE_NOM_JONCTION 70 // vérifier taille max d'un nom de jonction
+#define TAILLE_NOM_JONCTION 70 // vérifier taille max d'un nom de jonction --> 62 caractères max 
 #define NON_TROUVE -1
 #define INCONNU -1 // à garder ?
 #define INFINI 99999
@@ -29,6 +29,7 @@ struct jonction
 int init_jonction() 			 ;
 int init_rues_distances()		 ;
 int recherche_nom_rue()			 ;
+void purge()					 ;
 
 /* variables globales */
 
@@ -49,8 +50,20 @@ int nbjonction = 0;
 
 int main(int argc, char const *argv[])
 {
-	int point_depart, point_arrivee;
+	int point_depart, point_arrivee	;
+	int choix_mode = 0				;
 	if (init_jonction() != NON_TROUVE) {
+		while(choix_mode != 1 && choix_mode != 2){	
+			printf("Choisissez votre mode de trajet :\n\n");
+			printf("1 - piéton\n2 - voiture\n\n");
+			printf("Choix : ");
+			scanf("%d", &choix_mode);
+			if(choix_mode != 1 && choix_mode != 2){
+				purge();
+				printf("Merci de sélectionner le choix 1 ou 2.\n\n");
+				}
+			printf("%d\n", choix_mode);
+			}
 		if (init_rues_distances() != NON_TROUVE) {
 			point_depart = recherche_nom_rue("de départ");
 			point_arrivee = recherche_nom_rue("d'arrivée");
@@ -58,8 +71,6 @@ int main(int argc, char const *argv[])
 			printf("arrivée %d\n", point_arrivee);
 		}
 	}
-	
-
 }
 
 /* code des procédures et fonctions */
@@ -129,9 +140,9 @@ int init_rues_distances()
 
 int recherche_nom_rue(char contexte[20]) 
 {
-	int choix_ok = 0, purge, nb_result = 0			;
-	int choix = NON_TROUVE, test_saisie_char = 0 	;
-	char nom_rue[TAILLE_NOM_JONCTION]				;
+	int choix_ok = 0, nb_result = 0								;
+	int choix = NON_TROUVE, test_saisie_char = 0 				;
+	char nom_rue[TAILLE_NOM_JONCTION]							;
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
 	printf("Rue %s : ", contexte);
@@ -165,7 +176,7 @@ int recherche_nom_rue(char contexte[20])
 		}
 		else 
 		{
-			while((purge = fgetc(stdin)) != '\n' && purge != EOF) {}
+			purge();
 		}
 
 		if (!choix_ok) 
@@ -175,4 +186,11 @@ int recherche_nom_rue(char contexte[20])
 	}
 	return choix;
 
+}
+
+/* purge en cas de mauvaise saisie */
+
+void purge() {
+	int purge;
+	while((purge = fgetc(stdin)) != '\n' && purge != EOF) {}
 }
