@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define NB_JONCTIONS 700 // à modifier une fois que nombre de jonctions défini
 #define TAILLE_NOM_FICHIER 100 // vérifier taille max d'un nom de fichier 
-#define TAILLE_NOM_JONCTION 70 // vérifier taille max d'un nom de jonction --> 62 caractères max 
+#define TAILLE_NOM_JONCTION 70 // vérifier taille max d'un nom de jonction --> 62+4 caractères max 
 #define NON_TROUVE -1
 #define INCONNU -1 // à garder ?
 #define INFINI 99999
@@ -21,15 +21,16 @@ struct jonction
 {
 	char nom[TAILLE_NOM_JONCTION]	;
 	int predecesseur				;
-	int poids 						;
-	enum verif_passage passage 		;
+	int poids						;
+	enum verif_passage passage		;
 };
 
 /* appel des procédures et fonctions */
-int init_jonction() 			 ;
-int init_rues_distances()		 ;
-int recherche_nom_rue()			 ;
-void purge()					 ;
+int init_jonction() 			 			;
+int init_rues_distances(int choix_mode)		;
+int recherche_nom_rue()			 			;
+int mode_trajet()							;
+void purge()					 			;
 
 /* variables globales */
 
@@ -51,24 +52,16 @@ int nbjonction = 0;
 int main(int argc, char const *argv[])
 {
 	int point_depart, point_arrivee	;
-	int choix_mode = 0				;
+	int choix_mode = 0 				;
 	if (init_jonction() != NON_TROUVE) {
-		while(choix_mode != 1 && choix_mode != 2){	
-			printf("Choisissez votre mode de trajet :\n\n");
-			printf("1 - piéton\n2 - voiture\n\n");
-			printf("Choix : ");
-			scanf("%d", &choix_mode);
-			if(choix_mode != 1 && choix_mode != 2){
-				purge();
-				printf("Merci de sélectionner le choix 1 ou 2.\n\n");
-				}
-			printf("%d\n", choix_mode);
-			}
-		if (init_rues_distances() != NON_TROUVE) {
+		choix_mode = mode_trajet();
+		if (init_rues_distances(choix_mode) != NON_TROUVE) {
 			point_depart = recherche_nom_rue("de départ");
 			point_arrivee = recherche_nom_rue("d'arrivée");
-			printf("départ %d\n", point_depart);
-			printf("arrivée %d\n", point_arrivee);
+			//printf("départ %d\n", point_depart);
+			//printf("arrivée %d\n", point_arrivee);
+			printf("nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);
+
 		}
 	}
 }
@@ -80,7 +73,7 @@ int main(int argc, char const *argv[])
 int init_jonction()
 {
 	int test_init = 0 ;
-	FILE *fichier_jontions = fopen("jeu_test/test_jonctions.txt","r");
+	FILE *fichier_jontions = fopen("jeu_donnees/noms_jonctions.txt","r");
 	char nom_jonction[TAILLE_NOM_JONCTION];
 
 	// test ouverture fichier
@@ -103,12 +96,20 @@ int init_jonction()
 
 /* initialisation des noms des rues et de leur longueur */
 
-int init_rues_distances()
+int init_rues_distances(int choix_mode)
 {
-	int test_init = 0;
-	char nom_rue[TAILLE_NOM_JONCTION];
-	FILE *fichier_noms = fopen("jeu_test/test_noms_rues.txt","r");
-	FILE *fichier_longueur = fopen("jeu_test/test_longueurs.txt","r");
+	int test_init = 0						;
+	char nom_rue[TAILLE_NOM_JONCTION]		;
+	FILE *fichier_noms, *fichier_longueur 	;
+
+	// définition des fichiers selon mode piéton ou voiture
+	if(choix_mode == 1){
+		fichier_noms = fopen("jeu_donnees/pieton_noms_rues.txt","r")			;
+		fichier_longueur = fopen("jeu_donnees/pieton_longueurs_rues.txt","r")	;
+	} else {
+		fichier_noms = fopen("jeu_donnees/voiture_noms_rues.txt","r")			;
+		fichier_longueur = fopen("jeu_donnees/voiture_longueurs_rues.txt","r")	;
+	}
 
 	// test ouverture fichiers
 	if (fichier_noms == NULL || fichier_longueur == NULL)
@@ -124,6 +125,10 @@ int init_rues_distances()
 		// si ouverture fichier ok
 		// double boucle de parcours pour les affecter les données des fichiers 
 		for(int i = 0; i < nbjonction; i++){
+			//strcpy(tab_jonctions[i].nom, nom_rue);
+			//tab_jonctions[i].predecesseur = NON_TROUVE;
+			//tab_jonctions[i].poids = INFINI;
+			//tab_jonctions[i].passage = non;
 			for(int j = 0; j < nbjonction; j++){
 				fscanf(fichier_noms,"%s", nom_rue); // dans matrice des noms
 				strcpy(tab_noms_rues[i][j], nom_rue);
@@ -173,9 +178,7 @@ int recherche_nom_rue(char contexte[20])
 					printf("%s\n", tab_result[i]);
 				}
 			}
-		}
-		else 
-		{
+		} else {
 			purge();
 		}
 
@@ -186,6 +189,23 @@ int recherche_nom_rue(char contexte[20])
 	}
 	return choix;
 
+}
+
+/* choix du mode de trajet */
+
+int mode_trajet(){
+	int choix_mode = 0 ;
+	while(choix_mode != 1 && choix_mode != 2){	
+		printf("Choisissez votre mode de trajet :\n\n");
+		printf("1 - piéton\n2 - voiture\n\n");
+		printf("Choix : ");
+		scanf("%d", &choix_mode);
+		if(choix_mode != 1 && choix_mode != 2){
+			purge();
+			printf("Merci de sélectionner le choix 1 ou 2.\n\n");
+			}
+		}
+	return choix_mode;
 }
 
 /* purge en cas de mauvaise saisie */
