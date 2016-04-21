@@ -10,9 +10,9 @@
 
 /* définition du passage par un sommet */
 enum verif_passage 
-{
-	oui, 
-	non 
+{ 
+	non, // correspond à 0
+	oui  // correspond à 1
 };
 
 /* définition d'une jonction */
@@ -58,10 +58,8 @@ int main(int argc, char const *argv[])
 		if (init_rues_distances(choix_mode) != NON_TROUVE) {
 			point_depart = recherche_nom_rue("de départ");
 			point_arrivee = recherche_nom_rue("d'arrivée");
-			//printf("départ %d\n", point_depart);
-			//printf("arrivée %d\n", point_arrivee);
-			printf("D --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);
-			
+			printf("\nD --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);		//test
+			printf("\nA --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].predecesseur, tab_jonctions[point_arrivee].poids, tab_jonctions[point_arrivee].passage);	//test
 		}
 	}
 }
@@ -149,17 +147,22 @@ int recherche_nom_rue(char contexte[20])
 	char nom_rue[TAILLE_NOM_JONCTION]							;
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
-	printf("Rue %s : ", contexte);
-	scanf("%s", nom_rue);
+	while(nb_result == 0){
+		printf("Rue %s : ", contexte);
+		scanf("%s", nom_rue);
 
-	for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
-	{
-		test = strcasestr(tab_jonctions[i].nom, nom_rue) ;
-		if(test != NULL)
+		for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
 		{
-			nb_result++;
-			printf("%-s\n", tab_jonctions[i].nom);
-			strcpy(tab_result[i], tab_jonctions[i].nom);
+			test = strcasestr(tab_jonctions[i].nom, nom_rue) ;
+			if(test != NULL)
+			{
+				nb_result++;
+				printf("%-s\n", tab_jonctions[i].nom);
+				strcpy(tab_result[i], tab_jonctions[i].nom);
+			}
+		}
+		if(nb_result == 0) {
+			printf("Le nom que vous avez saisi ne correspond à aucune données en mémoire.\nMerci de ressaisir le nom ou de choisir une autre rue.\n\n");
 		}
 	}
 	
@@ -186,7 +189,7 @@ int recherche_nom_rue(char contexte[20])
 			printf("Choix erroné. Merci de renseigner un numéro valide : ");
 		}
 	}
-	return choix;
+	return choix-1;
 
 }
 
