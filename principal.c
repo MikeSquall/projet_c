@@ -20,7 +20,7 @@ typedef struct jonction Jonction ;
 struct jonction 
 {
 	char nom[TAILLE_NOM_JONCTION]	;
-	int predecesseur				;
+	int antecedent					;
 	int poids						;
 	enum verif_passage passage		;
 };
@@ -61,8 +61,8 @@ int main(int argc, char const *argv[])
 			tab_jonctions[point_depart].poids = 0; // initialisation du poids du point de départ à 0
 			printf("\nD --> poids dans tab_jonctions --> %d\n", tab_jonctions[point_depart].poids);
 			printf("A --> poids dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].poids);
-			//printf("\nD --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);		//test
-			//printf("\nA --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].predecesseur, tab_jonctions[point_arrivee].poids, tab_jonctions[point_arrivee].passage);	//test
+			//printf("\nD --> nom : %s\nantecedent : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].antecedent, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);		//test
+			//printf("\nA --> nom : %s\nantecedent : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].antecedent, tab_jonctions[point_arrivee].poids, tab_jonctions[point_arrivee].passage);	//test
 			//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
 			printf("\nD --> poids dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
 			printf("A --> poids dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
@@ -90,7 +90,7 @@ int init_jonction()
 		while (!feof(fichier_jontions)){ // possibilité de faire un tableau dynamique avec un malloc et de supprimer #DEFINE NB_JONCTIONS ?
 			if (fscanf(fichier_jontions, "%s", nom_jonction) != EOF){
 				strcpy(tab_jonctions[nbjonction].nom, nom_jonction); // insertion de la ligne du fichier dans le nom de chaque structure jonction
-				tab_jonctions[nbjonction].predecesseur = NON_TROUVE;
+				tab_jonctions[nbjonction].antecedent = NON_TROUVE;
 				tab_jonctions[nbjonction].poids = INFINI;
 				tab_jonctions[nbjonction].passage = non;
 				nbjonction++;
