@@ -6,7 +6,7 @@
 #define TAILLE_NOM_JONCTION 70 // vérifier taille max d'un nom de jonction --> 62+4 caractères max 
 #define NON_TROUVE -1
 #define INCONNU -1 // à garder ?
-#define INFINI 99999
+#define INFINI 9999
 
 /* définition du passage par un sommet */
 enum verif_passage 
@@ -56,10 +56,16 @@ int main(int argc, char const *argv[])
 	if (init_jonction() != NON_TROUVE) {
 		choix_mode = mode_trajet();
 		if (init_rues_distances(choix_mode) != NON_TROUVE) {
-			point_depart = recherche_nom_rue("de départ");
-			point_arrivee = recherche_nom_rue("d'arrivée");
-			printf("\nD --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);		//test
-			printf("\nA --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].predecesseur, tab_jonctions[point_arrivee].poids, tab_jonctions[point_arrivee].passage);	//test
+			point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
+			point_arrivee = recherche_nom_rue("d'arrivée");	// numéro du point d'arrivée
+			tab_jonctions[point_depart].poids = 0; // initialisation du poids du point de départ à 0
+			printf("\nD --> poids dans tab_jonctions --> %d\n", tab_jonctions[point_depart].poids);
+			printf("A --> poids dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].poids);
+			//printf("\nD --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);		//test
+			//printf("\nA --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].predecesseur, tab_jonctions[point_arrivee].poids, tab_jonctions[point_arrivee].passage);	//test
+			//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
+			printf("\nD --> poids dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
+			printf("A --> poids dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
 		}
 	}
 }
@@ -86,7 +92,7 @@ int init_jonction()
 				strcpy(tab_jonctions[nbjonction].nom, nom_jonction); // insertion de la ligne du fichier dans le nom de chaque structure jonction
 				tab_jonctions[nbjonction].predecesseur = NON_TROUVE;
 				tab_jonctions[nbjonction].poids = INFINI;
-				tab_jonctions[nbjonction].passage = oui;
+				tab_jonctions[nbjonction].passage = non;
 				nbjonction++;
 			}
 		}
@@ -148,7 +154,7 @@ int recherche_nom_rue(char contexte[20])
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
 	while(nb_result == 0){
-		printf("Rue %s : ", contexte);
+		printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
 		scanf("%s", nom_rue);
 
 		for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
@@ -177,7 +183,7 @@ int recherche_nom_rue(char contexte[20])
 				if (choix == atoi(tab_result[i]) && choix != 0) 
 				{
 					choix_ok = 1 ;
-					printf("%s\n", tab_result[i]);
+					printf("%s\n", tab_result[i]); // test
 				}
 			}
 		} else {
@@ -210,7 +216,7 @@ int mode_trajet(){
 	return choix_mode;
 }
 
-/* purge en cas de mauvaise saisie */
+/* purge de saisie */
 
 void purge() {
 	int purge;
