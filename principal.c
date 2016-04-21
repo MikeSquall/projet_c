@@ -60,8 +60,8 @@ int main(int argc, char const *argv[])
 			point_arrivee = recherche_nom_rue("d'arrivée");
 			//printf("départ %d\n", point_depart);
 			//printf("arrivée %d\n", point_arrivee);
-			printf("nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);
-
+			printf("D --> nom : %s\npredecesseur : %d\npoids : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].predecesseur, tab_jonctions[point_depart].poids, tab_jonctions[point_depart].passage);
+			
 		}
 	}
 }
@@ -86,6 +86,9 @@ int init_jonction()
 		while (!feof(fichier_jontions)){ // possibilité de faire un tableau dynamique avec un malloc et de supprimer #DEFINE NB_JONCTIONS ?
 			if (fscanf(fichier_jontions, "%s", nom_jonction) != EOF){
 				strcpy(tab_jonctions[nbjonction].nom, nom_jonction); // insertion de la ligne du fichier dans le nom de chaque structure jonction
+				tab_jonctions[nbjonction].predecesseur = NON_TROUVE;
+				tab_jonctions[nbjonction].poids = INFINI;
+				tab_jonctions[nbjonction].passage = oui;
 				nbjonction++;
 			}
 		}
@@ -125,10 +128,6 @@ int init_rues_distances(int choix_mode)
 		// si ouverture fichier ok
 		// double boucle de parcours pour les affecter les données des fichiers 
 		for(int i = 0; i < nbjonction; i++){
-			//strcpy(tab_jonctions[i].nom, nom_rue);
-			//tab_jonctions[i].predecesseur = NON_TROUVE;
-			//tab_jonctions[i].poids = INFINI;
-			//tab_jonctions[i].passage = non;
 			for(int j = 0; j < nbjonction; j++){
 				fscanf(fichier_noms,"%s", nom_rue); // dans matrice des noms
 				strcpy(tab_noms_rues[i][j], nom_rue);
