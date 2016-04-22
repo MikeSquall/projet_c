@@ -32,6 +32,8 @@ int recherche_nom_rue()			 			;
 int mode_trajet()							;
 void purge()					 			;
 int plus_courte_jonction()					;
+void check_passage(int jonction_validee)	;
+void maj_longueur_jonctions(int antecedent)	;
 
 /* variables globales */
 
@@ -239,6 +241,25 @@ int plus_courte_jonction() {
 	return courte ;
 }
 
+/* marqueur de passage par une jonction */ 
+void check_passage(int jonction_validee) {
+	tab_jonctions[num_jonction].passage = oui ;
+}
+
+/* mise à jour de la longueur des jonctions adjacentes à celle de longueur minimum */
+void maj_longueur_jonctions(int antecedent) {
+
+}
 
 
-/*  */
+/* *********************************************************************
+
+projet réalisé dans le cadre du master PISE / Université Paris Diderot 
+par Lyes KESSAL & Michael ARBIB
+année universitaire 2015/2016
+
+objectif :
+
+réaliser un programme qui indique le plus court chemin d'un point A à un point B, en langage C
+
+********************************************************************* */
