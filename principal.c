@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #define NB_JONCTIONS 700 // à modifier une fois que nombre de jonctions défini
-#define TAILLE_NOM_FICHIER 100 // vérifier taille max d'un nom de fichier 
-#define TAILLE_NOM_JONCTION 70 // vérifier taille max d'un nom de jonction --> 62+4 caractères max 
+#define TAILLE_NOM_FICHIER 100 // taille max d'un nom de fichier 
+#define TAILLE_NOM_JONCTION 70 // taille max d'un nom de jonction --> 62+4 caractères max 
 #define NON_TROUVE -1
 #define INCONNU -1 // à garder ?
 #define INFINI 9999
@@ -31,6 +31,7 @@ int init_rues_distances(int choix_mode)		;
 int recherche_nom_rue()			 			;
 int mode_trajet()							;
 void purge()					 			;
+int plus_courte_jonction()					;
 
 /* variables globales */
 
@@ -59,13 +60,14 @@ int main(int argc, char const *argv[])
 			point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
 			point_arrivee = recherche_nom_rue("d'arrivée");	// numéro du point d'arrivée
 			tab_jonctions[point_depart].longueur = 0; // initialisation de la longueur de la rue du point de départ à 0
-			printf("\nD --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_depart].longueur);
-			printf("A --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].longueur);
+			//printf("\nD --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_depart].longueur);
+			//printf("A --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].longueur);
 			//printf("\nD --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].antecedent, tab_jonctions[point_depart].longueur, tab_jonctions[point_depart].passage);		//test
 			//printf("\nA --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].antecedent, tab_jonctions[point_arrivee].longueur, tab_jonctions[point_arrivee].passage);	//test
 			//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
-			printf("\nD --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
-			printf("A --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
+			//printf("\nD --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
+			//printf("A --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
+			printf("\nJonction de longueur min --> %s\n", tab_jonctions[plus_courte_jonction()].nom);
 		}
 	}
 }
@@ -222,5 +224,21 @@ void purge() {
 	int purge;
 	while((purge = fgetc(stdin)) != '\n' && purge != EOF) {}
 }
+
+/* recherche de la jonction avec la longueur la plus faible */
+int plus_courte_jonction() {
+	int courte = NON_TROUVE, longueur = INFINI ;
+	for (int i = 0; i < nbjonction; i++)
+	{
+		if (tab_jonctions[i].passage == non && tab_jonctions[i].longueur < longueur)
+		{
+			longueur = tab_jonctions[i].longueur 	;
+			courte = i 								;
+		}
+	}
+	return courte ;
+}
+
+
 
 /*  */
