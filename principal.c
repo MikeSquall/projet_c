@@ -2,11 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#define NB_JONCTIONS 700 // à modifier une fois que nombre de jonctions défini
+#define NB_JONCTIONS 700 // à modifier en fonction du nombre de jonctions défini
 #define TAILLE_NOM_FICHIER 100 // taille max d'un nom de fichier 
 #define TAILLE_NOM_JONCTION 70 // taille max d'un nom de jonction --> 62+4 caractères max 
 #define NON_TROUVE -1
-#define INCONNU -1 // à garder ?
 #define INFINI 9999
 
 /* définition du passage par un sommet */
@@ -37,6 +36,7 @@ void check_passage(int jonction_validee)	;
 void maj_longueur_jonctions(int antecedent)	;
 char RemplaceLettre(char c)					;
 void conv_char_speciaux(char saisie[])		;
+int menu()									;
 
 /* variables globales */
 
@@ -61,6 +61,7 @@ int main(int argc, char const *argv[])
 	int choix_mode = 0, jonction_tmp = NON_TROUVE 	;
 
 	if (init_jonction() != NON_TROUVE) {
+		printf("Bienvenue dans le programme de calcul du chemin le plus court.\nCe programme vous donnera le trajet le plus court entre 2 intersections de rues du 11e arrondissement de Paris.\n\n");
 		choix_mode = mode_trajet();
 		if (init_rues_distances(choix_mode) != NON_TROUVE) {
 			point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
@@ -316,6 +317,36 @@ char RemplaceLettre(char c)
     else return '!'; 										//s'il n'y a pas d'équivalence pour la lettre cherchée, on renvoie !
 }
 
+
+/* menu */
+
+int menu() {
+	int choix = NON_TROUVE ;
+
+	printf("\tMenu  : \n")														;
+	printf("1 - Calculer un itinéraire\n")										;
+	printf("2 - Calculer le trajet de retour\n")								;
+	printf("3 - Calculer le même itinéraire avec l'autre mode de trajet\n")		;
+	printf("\n0 - Quitter le programme\n")										;
+
+	switch (choix) {
+		case 0 : 
+			printf("Merci d'avoir utilisé ce programme.\nAu revoir et à bientôt.\n");
+			break ;
+		case 1 :
+			
+			break ;
+		case 2 :
+			
+			break ;
+		case 3 :
+			
+			break ;
+		default : 
+			printf("Merci de saisir un choix valide\n")	;
+			purge()				 						;
+	}
+}
 
 /* *********************************************************************
 
