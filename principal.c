@@ -57,14 +57,16 @@ int nbjonction = 0;
 
 int main(int argc, char const *argv[])
 {
-	int point_depart, point_arrivee	;
-	int choix_mode = 0 				;
+	int point_depart, point_arrivee					;
+	int choix_mode = 0, jonction_tmp = NON_TROUVE 	;
+
 	if (init_jonction() != NON_TROUVE) {
 		choix_mode = mode_trajet();
 		if (init_rues_distances(choix_mode) != NON_TROUVE) {
 			point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
 			point_arrivee = recherche_nom_rue("d'arrivée");	// numéro du point d'arrivée
 			tab_jonctions[point_depart].longueur = 0; // initialisation de la longueur de la rue du point de départ à 0
+			
 			//printf("\nD --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_depart].longueur);
 			//printf("A --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].longueur);
 			//printf("\nD --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].antecedent, tab_jonctions[point_depart].longueur, tab_jonctions[point_depart].passage);		//test
@@ -72,7 +74,13 @@ int main(int argc, char const *argv[])
 			//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
 			//printf("\nD --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
 			//printf("A --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
-			printf("\nJonction de longueur min --> %s\n", tab_jonctions[plus_courte_jonction()].nom);
+			//printf("\nJonction de longueur min --> %s\n", tab_jonctions[plus_courte_jonction()].nom);
+
+			while ((jonction_tmp = plus_courte_jonction()) != point_arrivee) { // tant que la plus courte jonction traitée n'est pas la jonction d'arrivée
+				check_passage(jonction_tmp) 		; // on marque la jonction pour dire qu'on y est passé et qu'elle ne nous intéresse plus
+				printf("\n jonction traitée --> %s\n", tab_jonctions[jonction_tmp].nom);
+				maj_longueur_jonctions(jonction_tmp); // on calcule la longueur qui la sépare des prochaines jonctions et on reboucle avec la plus courte longueur trouvée
+			}
 		}
 	}
 }
