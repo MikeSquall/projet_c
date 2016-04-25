@@ -1,3 +1,4 @@
+#define _GNU_SOURCE /*ajout car strcasestr n'est pas une fonction standard du C*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -34,6 +35,8 @@ void purge()					 			;
 int plus_courte_jonction()					;
 void check_passage(int jonction_validee)	;
 void maj_longueur_jonctions(int antecedent)	;
+char RemplaceLettre(char c)					;
+void conv_char_speciaux(char saisie[])		;
 
 /* variables globales */
 
@@ -255,6 +258,54 @@ void maj_longueur_jonctions(int antecedent) {
 			tab_jonctions[i].antecedent = antecedent 											; // m-à-j antécédent 
 		}
 	}
+}
+
+/*fonction pour corriger les caractères spéciaux*/
+void conv_char_speciaux(char saisie[]){
+	int taille, i, nb_rempl=0;
+	char temp;
+
+	taille = strlen(saisie);
+	for (i=0; i<taille; i++){
+		if 	(saisie[i]<'A' || saisie[i]>'z'){																	/*on ne considère que les caractères qui ne sont pas des lettres, on inclut les caractères avec le code ASCII 91, 92, 93, 94, 95, 96*/
+			if (RemplaceLettre(saisie[i])!='!'){ 																/*si la fonction RemplaceLettre renvoie autre chose que '!'*/
+				if (RemplaceLettre(saisie[i])=='_'){ 															/*si elle renvoie '_'*/ 
+					saisie[i]=RemplaceLettre(saisie[i]); }														/*on remplace ' ou - par _*/
+				else{																							/*sinon*/
+					int Index_A_Supp = i; 																		/*on retient l'index du caractère à modifier*/
+					memmove(&saisie[Index_A_Supp], &saisie[Index_A_Supp + 1], strlen(saisie) - Index_A_Supp);	 /*on décale les n caractères après le i(exclus) dans la case[i] */
+					saisie[i]=RemplaceLettre(saisie[i]);														/*on remplace le caractère accentués par son équivalent*/
+					nb_rempl++; 																				/*on compte le nombre de changements faits sur les caractères codés sur 2 octets. A noter que ce nombre avaance par pas de 2*/
+					}
+				}
+			}
+		}
+	saisie[taille-(nb_rempl/2)]='\0'; 	/*on supprime l'autre octet des caractères codés sur 2 octets. Comme le nbre de remplacement est compté en double, on le divise/2 pour ne pas supprimer plus de caractères qu'il ne faut*/
+}	
+
+
+
+/*fonction pour remplacer les caractères accentués*/
+char RemplaceLettre(char c)
+{
+    int i;
+    char lettre;
+    char* liste_equiv = "' -àâäéêèëîïôöûüç";
+
+    const char *lettre_equiv = strchr(liste_equiv, c); 		/*pointe sur la première occurence de c rencontrée dans liste_equiv*/
+    if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
+    	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
+    	if (index<3) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
+    	else if (index>3 && index<9) lettre =  97; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
+    	else if (index>9 && index<17) lettre =  101; //e
+		else if (index>17 && index<21) lettre =  105; //i
+		else if (index>21 && index<25) lettre =  111; //o
+		else if (index>25 && index<29) lettre =  117; //u
+		else if (index==30) lettre =  99;
+    	
+    	return lettre; 										/*on renvoie la lettre désirée: _ a e i o u*/
+    }
+    else return '!'; 										//s'il n'y a pas d'équivalence pour la lettre cherchée, on renvoie !
 }
 
 
