@@ -248,7 +248,13 @@ void check_passage(int jonction_validee) {
 
 /* mise à jour de la longueur des jonctions adjacentes à celle de longueur minimum */
 void maj_longueur_jonctions(int antecedent) {
-
+	for (int i = 0; i < nbjonction; i++){ // on parcourt l'intégralité du tableau des jonctions pour la m-à-j
+		if ((tab_jonctions[i].poids > (tab_jonctions[antecedent] + tab_longueur[antecedent][i])) && tab_jonctions[i].passage == non) 
+		{ // elle est faite seulement si la longueur de la jonction est supérieure à celle de son antécédant + la longueur entre les deux (dans le tableau des longueurs) et si on n'est pas déjà passé par cette jonction (cf : pathfinding avec dijkstra - openclassroom)
+			tab_jonctions[i].poids = tab_jonctions[antecedent] + tab_longueur[antecedent][i] 	; // m-à-j longueur 
+			tab_jonctions[i].antecedent = antecedent 											; // m-à-j antécédent 
+		}
+	}
 }
 
 
