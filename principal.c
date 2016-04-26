@@ -37,7 +37,8 @@ void maj_longueur_jonctions(int antecedent)	;
 char RemplaceLettre(char c)					;
 void conv_char_speciaux(char saisie[])		;
 void dijkstra(int choix_mode)				;
-
+//void affiche_chemin(int num_sommet_arrivee) ;
+void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee);
 
 /* variables globales */
 
@@ -53,13 +54,14 @@ int tab_longueur[NB_JONCTIONS][NB_JONCTIONS]; //
 // variable de parcours 
 int nbjonction = 0;
 
+// variable du choix de mode de transport (en globale car utilisée dans le module d'affichage)
+int choix_mode = 0								;
 
 /* programme principal */
 
 int main(int argc, char const *argv[])
 {
 	
-	int choix_mode = 0								;
 	int choix_menu = NON_TROUVE 					;
 	int itineraire_de_base_calcule = NON_TROUVE		;
 
@@ -89,6 +91,7 @@ int main(int argc, char const *argv[])
 					
 					choix_mode = mode_transport()	;
 					dijkstra(choix_mode)			;
+
 
 					break ;
 				case 2 : // trajet retour suite au choix 1
@@ -334,18 +337,18 @@ char RemplaceLettre(char c)
 {
     int i;
     char lettre;
-    char* liste_equiv = "' -àâäéêèëîïôöûüç";
+    char* liste_equiv = "'-àâäéêèëîïôöûüç";
 
     const char *lettre_equiv = strchr(liste_equiv, c); 		/*pointe sur la première occurence de c rencontrée dans liste_equiv*/
     if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
     	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
-    	if (index<3) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
-    	else if (index>3 && index<9) lettre =  97; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
-    	else if (index>9 && index<17) lettre =  101; //e
-		else if (index>17 && index<21) lettre =  105; //i
-		else if (index>21 && index<25) lettre =  111; //o
-		else if (index>25 && index<29) lettre =  117; //u
-		else if (index==30) lettre =  99;
+    	if (index<2) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
+    	else if (index>2 && index<8) lettre =  97; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
+    	else if (index>8 && index<16) lettre =  101; //e
+		else if (index>16 && index<20) lettre =  105; //i
+		else if (index>20 && index<24) lettre =  111; //o
+		else if (index>24 && index<28) lettre =  117; //u
+		else if (index==29) lettre =  99;
     	
     	return lettre; 										/*on renvoie la lettre désirée: _ a e i o u*/
     }
@@ -379,7 +382,66 @@ void dijkstra(int choix_mode) {
 			//printf("\n nom --> %s | longueur --> %d\n", tab_jonctions[jonction_tmp].nom, tab_jonctions[jonction_tmp].longueur);
 			}
 			printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);
-		}
+	}
+	affiche_chemin(point_depart, point_arrivee)	;
+}
+
+void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee){
+
+  	/*Si la longueur de la jonction d'arrivée est à 9999, il n'y a pas de chemin*/
+  	if (tab_jonctions[num_jonction_arrivee].longueur == INFINI)
+    	printf("Aucun chemin n'existe !\n");
+    /*Sinon, si la longueur de la jonction d'arrivée est différent de 9999*/
+  	else
+  	{ 	
+  		/*Création des variables qui seront utilisées*/
+  		int tab_chemin_inverse[NB_JONCTIONS]    			; /*Tableau pour stocker le chemin qui mène du point de départ au point d'arrivée (dans le sens inverse)*/
+		int jonction_temp									; /*Jouera le rôle de mémoire temporaire*/
+  		int jonction_j1, jonction_j2						; /*seront utilisées pour les calculs de l'affichage du chemin inverse (récupérer les infos depuis les matrices)*/
+  		int nb_jonctions_afficher=1							; 
+  		
+  		tab_chemin_inverse[0]=num_jonction_arrivee; /*on met la jonction d'arrivée dans la 1ère case du tableau*/
+  		jonction_temp=num_jonction_arrivee; /*Initailisation de la variable avec la valeur de num_jonction_arrivee*/
+  		
+    	while (jonction_temp != NON_TROUVE){ 
+    		tab_chemin_inverse[nb_jonctions_afficher++]=jonction_temp		;	/*on commence par mettre le num de la jonction d'arrivée dans la case avec l'indice 1 et on boucle tant que la condition est respectée*/
+      		jonction_temp = tab_jonctions[jonction_temp].antecedent      	;	/*on affecte le prédecesseur à jonction_temp pour remonter jusqu'au point de départ */
+    	}
+    
+    printf("Voici le plus court chemin pour aller de : \n %s \n à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
+
+    for(int i=nb_jonctions_afficher-1; i>0; i--) /*On commence une case */
+    { jonction_j1 = tab_chemin_inverse[i]		 /*On affecte à jonction_A le numéro de la jonction qui se trouve dans la case i*/						;
+      if(jonction_j1 == num_jonction_arrivee)	 /*On teste si jonction_A est la jonction d'arrivée. Si oui, on arrête l'affichage et on lui affiche le récapitulatif du trajet*/
+      {
+        printf("\nVous êtes arrivé(e) à %s.\nDistance totale parcourue (en mètres) : %d\n",tab_jonctions[jonction_j1].nom, tab_jonctions[num_jonction_arrivee].longueur)		;
+      }
+      else /*Sinon*/
+      { jonction_j2 = tab_chemin_inverse[i-1]			;	/*jonction_B se voit affecter le numéro de jonction qui se trouve en i-1*/
+        printf("de %s  ",tab_jonctions[jonction_j1].nom);
+        
+        /*test si mode 1 ou mode 2 : peut avoir un impact sur l'affichage*/
+        if (choix_mode==1){ 														/*Mode piéton: n'a pas d'impact sur l'affichage car les matrices sont symétriques*/
+        	printf("suivre %s  ",tab_noms_rues[jonction_j1][jonction_j2])					;
+        	printf("vers %s  ",tab_jonctions[jonction_j2].nom)        						;
+        	printf("[Distance : %d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   	;
+        }
+        else { 		/*si le mode de transport est voiture, alors on teste si c'est un sens interdit pour récupérer les bonnes informations. Sinon, on risque de se retrouver avec des 9999 ou des INFINI comme valeurs*/
+        	if (tab_longueur[jonction_j1][jonction_j2] != INFINI){							/*si le sens de circulation va de J1 à J2*/
+	        	printf("suivre %s  ",tab_noms_rues[jonction_j1][jonction_j2])				;
+        		printf("vers %s  ",tab_jonctions[jonction_j2].nom)        					;
+        		printf("[Distance : %d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   ;
+        	}
+        	else { 																			/*si le sens de circulation va de J2 à J1*/
+	        	printf("suivre %s  ",tab_noms_rues[jonction_j2][jonction_j1])				;
+        		printf("vers %s  ",tab_jonctions[jonction_j2].nom)        					;
+        		printf("[Distance : %d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  	;
+        	}
+        	
+        }
+      }
+    }
+  }
 }
 
 
