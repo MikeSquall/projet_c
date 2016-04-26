@@ -36,7 +36,7 @@ void check_passage(int jonction_validee)	;
 void maj_longueur_jonctions(int antecedent)	;
 char RemplaceLettre(char c)					;
 void conv_char_speciaux(char saisie[])		;
-void dijkstra(int choix_mode)				;
+void dijkstra(int point_arrivee)			;
 
 
 /* variables globales */
@@ -58,7 +58,8 @@ int nbjonction = 0;
 
 int main(int argc, char const *argv[])
 {
-	
+	int point_depart = NON_TROUVE 					; 
+	int point_arrivee = NON_TROUVE 					;
 	int choix_mode = 0								;
 	int choix_menu = NON_TROUVE 					;
 	int itineraire_de_base_calcule = NON_TROUVE		;
@@ -88,7 +89,12 @@ int main(int argc, char const *argv[])
 					itineraire_de_base_calcule = 1 ;
 					
 					choix_mode = mode_transport()	;
-					dijkstra(choix_mode)			;
+					if (init_rues_distances(choix_mode) != NON_TROUVE) {
+						point_depart = recherche_nom_rue("de départ")	; // numéro du point de départ
+						point_arrivee = recherche_nom_rue("d'arrivée")	; // numéro du point d'arrivée
+						tab_jonctions[point_depart].longueur = 0		; // initialisation de la longueur de la rue du point de départ à 0
+						dijkstra(point_arrivee)							; // fonction qui utilise l'algo de Dijkstra
+					}
 
 					break ;
 				case 2 : // trajet retour suite au choix 1
@@ -96,7 +102,11 @@ int main(int argc, char const *argv[])
 					{
 						printf("Merci de saisir un choix valide\n")	;
 					} else {
-						printf("blablabla cas 2\n");
+						if (init_jonction() != NON_TROUVE) // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
+						{ // on inverse les points de départ et arrivée pour recalculer l'itinéraire de retour
+							tab_jonctions[point_arrivee].longueur = 0	; // initialisation de la longueur de la rue du point d'arrivée à 0
+							dijkstra(point_depart) 						; // fonction qui utilise l'algo de Dijkstra
+						}
 					}
 					break ;
 				case 3 : // mode de transport alternatif avec itinéraire du choix 1
@@ -111,6 +121,14 @@ int main(int argc, char const *argv[])
 							choix_mode = 1 ; 
 						}
 						printf("mode --> %d\n", choix_mode);
+						if (init_rues_distances(choix_mode) != NON_TROUVE) 
+						{
+							if (init_jonction() != NON_TROUVE) // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
+							{
+								tab_jonctions[point_depart].longueur = 0		; // initialisation de la longueur de la rue du point de départ à 0
+								dijkstra(point_arrivee)							; // fonction qui utilise l'algo de Dijkstra
+							}
+						}
 					}
 					break ;
 				default : 
@@ -354,32 +372,18 @@ char RemplaceLettre(char c)
 
 /* dijkstra */
 
-void dijkstra(int choix_mode) {
-	int point_depart, point_arrivee	;
+void dijkstra(int point_arrivee) {
 	int jonction_tmp = NON_TROUVE 	;
-
-	if (init_rues_distances(choix_mode) != NON_TROUVE) {
-		point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
-		point_arrivee = recherche_nom_rue("d'arrivée");	// numéro du point d'arrivée
-		tab_jonctions[point_depart].longueur = 0; // initialisation de la longueur de la rue du point de départ à 0
-		
-		//printf("\nD --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_depart].longueur);
-		//printf("A --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].longueur);
-		//printf("\nD --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].antecedent, tab_jonctions[point_depart].longueur, tab_jonctions[point_depart].passage);		//test
-		//printf("\nA --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].antecedent, tab_jonctions[point_arrivee].longueur, tab_jonctions[point_arrivee].passage);	//test
-		//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
-		//printf("\nD --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
-		//printf("A --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
-		//printf("\nJonction de longueur min --> %s\n", tab_jonctions[plus_courte_jonction()].nom);
-
-		while ((jonction_tmp = plus_courte_jonction()) != point_arrivee) { // tant que la plus courte jonction traitée n'est pas la jonction d'arrivée
-			check_passage(jonction_tmp) 		; // on marque la jonction pour dire qu'on y est passé et qu'elle ne nous intéresse plus
-			maj_longueur_jonctions(jonction_tmp); // on calcule la longueur qui la sépare des prochaines jonctions et on reboucle avec la plus courte longueur trouvée
-			// test affichage des jonctions traitées + longueur
-			//printf("\n nom --> %s | longueur --> %d\n", tab_jonctions[jonction_tmp].nom, tab_jonctions[jonction_tmp].longueur);
-			}
-			printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);
+	
+	while ((jonction_tmp = plus_courte_jonction()) != point_arrivee) { // tant que la plus courte jonction traitée n'est pas la jonction d'arrivée
+		check_passage(jonction_tmp) 		; // on marque la jonction pour dire qu'on y est passé et qu'elle ne nous intéresse plus
+		maj_longueur_jonctions(jonction_tmp); // on calcule la longueur qui la sépare des prochaines jonctions et on reboucle avec la plus courte longueur trouvée
+		// test affichage des jonctions traitées + longueur
+		//printf("\n nom --> %s | longueur --> %d\n", tab_jonctions[jonction_tmp].nom, tab_jonctions[jonction_tmp].longueur);
 		}
+		printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);
+		// fonction d'affichage à insérer ci-dessous
+		
 }
 
 
