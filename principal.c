@@ -29,14 +29,14 @@ struct jonction
 int init_jonction() 			 			;
 int init_rues_distances(int choix_mode)		;
 int recherche_nom_rue()			 			;
-int mode_trajet()							;
+int mode_transport()							;
 void purge()					 			;
 int plus_courte_jonction()					;
 void check_passage(int jonction_validee)	;
 void maj_longueur_jonctions(int antecedent)	;
 char RemplaceLettre(char c)					;
 void conv_char_speciaux(char saisie[])		;
-int menu()									;
+
 
 /* variables globales */
 
@@ -59,28 +59,61 @@ int main(int argc, char const *argv[])
 {
 	int point_depart, point_arrivee					;
 	int choix_mode = 0, jonction_tmp = NON_TROUVE 	;
+	int choix_menu = NON_TROUVE 							;
+	int itineraire_de_base_calcule = 0 				;
 
 	if (init_jonction() != NON_TROUVE) {
-		printf("Bienvenue dans le programme de calcul du chemin le plus court.\nCe programme vous donnera le trajet le plus court entre 2 intersections de rues du 11e arrondissement de Paris.\n\n");
-		choix_mode = mode_trajet();
-		if (init_rues_distances(choix_mode) != NON_TROUVE) {
-			point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
-			point_arrivee = recherche_nom_rue("d'arrivée");	// numéro du point d'arrivée
-			tab_jonctions[point_depart].longueur = 0; // initialisation de la longueur de la rue du point de départ à 0
-			
-			//printf("\nD --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_depart].longueur);
-			//printf("A --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].longueur);
-			//printf("\nD --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].antecedent, tab_jonctions[point_depart].longueur, tab_jonctions[point_depart].passage);		//test
-			//printf("\nA --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].antecedent, tab_jonctions[point_arrivee].longueur, tab_jonctions[point_arrivee].passage);	//test
-			//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
-			//printf("\nD --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
-			//printf("A --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
-			//printf("\nJonction de longueur min --> %s\n", tab_jonctions[plus_courte_jonction()].nom);
+		printf("\nBienvenue dans le programme de calcul du chemin le plus court.\nCe programme vous donnera le trajet le plus court entre 2 intersections de rues du 11e arrondissement de Paris.\n\n");
+		
+		while (choix_menu != 0) {
+			printf("************** Menu ************** \n")								;
+			printf("1 - Calculer un itinéraire\n")										;
+			printf("2 - Calculer le trajet de retour\n")								;
+			printf("3 - Calculer le même itinéraire avec l'autre mode de transport\n")		;
+			printf("\n0 - Quitter le programme\n")										;
+			printf("\nVotre choix : ");
+			scanf("%d", &choix_menu)													;
 
-			while ((jonction_tmp = plus_courte_jonction()) != point_arrivee) { // tant que la plus courte jonction traitée n'est pas la jonction d'arrivée
-				check_passage(jonction_tmp) 		; // on marque la jonction pour dire qu'on y est passé et qu'elle ne nous intéresse plus
-				printf("\n jonction traitée --> %s\n", tab_jonctions[jonction_tmp].nom);
-				maj_longueur_jonctions(jonction_tmp); // on calcule la longueur qui la sépare des prochaines jonctions et on reboucle avec la plus courte longueur trouvée
+			switch (choix_menu) 
+			{
+				case 0 : // quitter
+					printf("\nMerci d'avoir utilisé ce programme.\nAu revoir et à bientôt.\n");
+					break ;
+				case 1 : // calcul itinéraire
+					
+					itineraire_de_base_calcule = 1 ;
+					
+					choix_mode = mode_transport();
+					if (init_rues_distances(choix_mode) != NON_TROUVE) {
+						point_depart = recherche_nom_rue("de départ"); 	// numéro du point de départ
+						point_arrivee = recherche_nom_rue("d'arrivée");	// numéro du point d'arrivée
+						tab_jonctions[point_depart].longueur = 0; // initialisation de la longueur de la rue du point de départ à 0
+						
+						//printf("\nD --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_depart].longueur);
+						//printf("A --> longueur dans tab_jonctions --> %d\n", tab_jonctions[point_arrivee].longueur);
+						//printf("\nD --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_depart].nom, tab_jonctions[point_depart].antecedent, tab_jonctions[point_depart].longueur, tab_jonctions[point_depart].passage);		//test
+						//printf("\nA --> nom : %s\nantecedent : %d\nlongueur : %d\npassage : %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].antecedent, tab_jonctions[point_arrivee].longueur, tab_jonctions[point_arrivee].passage);	//test
+						//printf("\njonction dans tab_noms_rues --> %s\n", tab_noms_rues[point_depart][point_depart]);
+						//printf("\nD --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_depart][point_depart]);
+						//printf("A --> longueur dans tab_longueur     --> %d\n", tab_longueur[point_arrivee][point_arrivee]);
+						//printf("\nJonction de longueur min --> %s\n", tab_jonctions[plus_courte_jonction()].nom);
+
+						while ((jonction_tmp = plus_courte_jonction()) != point_arrivee) { // tant que la plus courte jonction traitée n'est pas la jonction d'arrivée
+							check_passage(jonction_tmp) 		; // on marque la jonction pour dire qu'on y est passé et qu'elle ne nous intéresse plus
+							printf("\n jonction traitée --> %s\n", tab_jonctions[jonction_tmp].nom);
+							maj_longueur_jonctions(jonction_tmp); // on calcule la longueur qui la sépare des prochaines jonctions et on reboucle avec la plus courte longueur trouvée
+							}
+						}
+					break ;
+				case 2 : // trajet retour suite au choix 1
+					
+					break ;
+				case 3 : // mode de transport alternatif avec itinéraire du choix 1
+					
+					break ;
+				default : 
+					printf("Merci de saisir un choix valide\n")	;
+					purge()				 						;
 			}
 		}
 	}
@@ -215,12 +248,12 @@ int recherche_nom_rue(char contexte[20])
 
 }
 
-/* choix du mode de trajet */
+/* choix du mode de transport */
 
-int mode_trajet(){
+int mode_transport(){
 	int choix_mode = 0 ;
 	while(choix_mode != 1 && choix_mode != 2){	
-		printf("Choisissez votre mode de trajet :\n\n");
+		printf("\nChoisissez votre mode de transport :\n\n");
 		printf("1 - piéton\n2 - voiture\n\n");
 		printf("Choix : ");
 		scanf("%d", &choix_mode);
@@ -318,35 +351,6 @@ char RemplaceLettre(char c)
 }
 
 
-/* menu */
-
-int menu() {
-	int choix = NON_TROUVE ;
-
-	printf("\tMenu  : \n")														;
-	printf("1 - Calculer un itinéraire\n")										;
-	printf("2 - Calculer le trajet de retour\n")								;
-	printf("3 - Calculer le même itinéraire avec l'autre mode de trajet\n")		;
-	printf("\n0 - Quitter le programme\n")										;
-
-	switch (choix) {
-		case 0 : 
-			printf("Merci d'avoir utilisé ce programme.\nAu revoir et à bientôt.\n");
-			break ;
-		case 1 :
-			
-			break ;
-		case 2 :
-			
-			break ;
-		case 3 :
-			
-			break ;
-		default : 
-			printf("Merci de saisir un choix valide\n")	;
-			purge()				 						;
-	}
-}
 
 /* *********************************************************************
 
