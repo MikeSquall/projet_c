@@ -37,6 +37,7 @@ void maj_longueur_jonctions(int antecedent)	;
 char RemplaceLettre(char c)					;
 void conv_char_speciaux(char saisie[])		;
 void dijkstra(int point_arrivee)			;
+void reinit_jonctions() 					;
 
 
 /* variables globales */
@@ -69,10 +70,10 @@ int main(int argc, char const *argv[])
 		
 		while (choix_menu != 0) {
 			printf("\n************** Menu ************** \n")								;
-			printf("1 - Calculer un itinéraire\n")											;
+			printf("1 - Calculer un itinéraire principal\n")								;
 			if (itineraire_de_base_calcule != NON_TROUVE){
-				printf("2 - Calculer le trajet de retour\n")								;
-				printf("3 - Calculer le même itinéraire avec l'autre mode de transport\n")	;
+				printf("2 - Calculer le trajet de retour\n")										;
+				printf("3 - Recalculer l'itinéraire principal avec l'autre mode de transport\n")	;
 			}
 			printf("\n0 - Quitter le programme\n")											;
 			printf("\nVotre choix : ")														;
@@ -101,12 +102,10 @@ int main(int argc, char const *argv[])
 					if (itineraire_de_base_calcule == NON_TROUVE)
 					{
 						printf("Merci de saisir un choix valide\n")	;
-					} else {
-						if (init_jonction() != NON_TROUVE) // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
-						{ // on inverse les points de départ et arrivée pour recalculer l'itinéraire de retour
-							tab_jonctions[point_arrivee].longueur = 0	; // initialisation de la longueur de la rue du point d'arrivée à 0
-							dijkstra(point_depart) 						; // fonction qui utilise l'algo de Dijkstra
-						}
+					} else { // on inverse les points de départ et arrivée pour recalculer l'itinéraire de retour
+						reinit_jonctions() 							; // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
+						tab_jonctions[point_arrivee].longueur = 0	; // initialisation de la longueur de la rue du point d'arrivée à 0
+						dijkstra(point_depart) 						; // fonction qui utilise l'algo de Dijkstra
 					}
 					break ;
 				case 3 : // mode de transport alternatif avec itinéraire du choix 1
@@ -123,11 +122,9 @@ int main(int argc, char const *argv[])
 						printf("mode --> %d\n", choix_mode);
 						if (init_rues_distances(choix_mode) != NON_TROUVE) 
 						{
-							if (init_jonction() != NON_TROUVE) // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
-							{
-								tab_jonctions[point_depart].longueur = 0		; // initialisation de la longueur de la rue du point de départ à 0
-								dijkstra(point_arrivee)							; // fonction qui utilise l'algo de Dijkstra
-							}
+							reinit_jonctions()							; // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
+							tab_jonctions[point_depart].longueur = 0	; // initialisation de la longueur de la rue du point de départ à 0
+							dijkstra(point_arrivee)						; // fonction qui utilise l'algo de Dijkstra
 						}
 					}
 					break ;
@@ -386,6 +383,14 @@ void dijkstra(int point_arrivee) {
 		
 }
 
+/* procédure de ré-initialisation des jonctions dans tab_jonctions */
+void reinit_jonctions() {
+	for (int i = 0; i < nbjonction; i++) {
+		tab_jonctions[i].antecedent = NON_TROUVE;
+		tab_jonctions[i].longueur = INFINI;
+		tab_jonctions[i].passage = non;
+	}
+}
 
 /* *********************************************************************
 
