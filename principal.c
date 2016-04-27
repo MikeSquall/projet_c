@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #define NB_JONCTIONS 700 // à modifier en fonction du nombre de jonctions défini
 #define TAILLE_NOM_FICHIER 100 // taille max d'un nom de fichier 
 #define TAILLE_NOM_JONCTION 70 // taille max d'un nom de jonction --> 62+4 caractères max 
@@ -31,6 +32,7 @@ void conv_char_speciaux(char saisie[])		;
 void dijkstra(int point_arrivee)			;
 void reinit_jonctions() 					;
 void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix_mode);
+void verif_saisie_numerique(char saisie[], int *saisie_ok);
 
 
 /* variables globales */
@@ -100,6 +102,7 @@ int main(int argc, char const *argv[])
 						reinit_jonctions() 							; // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
 						tab_jonctions[point_arrivee].longueur = 0	; // initialisation de la longueur de la rue du point d'arrivée à 0
 						dijkstra(point_depart) 						; // fonction qui utilise l'algo de Dijkstra
+						affiche_chemin(point_arrivee, point_depart, choix_mode);
 					}
 					break ;
 				case 3 : // mode de transport alternatif avec itinéraire du choix 1
@@ -119,6 +122,8 @@ int main(int argc, char const *argv[])
 							reinit_jonctions()							; // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
 							tab_jonctions[point_depart].longueur = 0	; // initialisation de la longueur de la rue du point de départ à 0
 							dijkstra(point_arrivee)						; // fonction qui utilise l'algo de Dijkstra
+							affiche_chemin(point_depart, point_arrivee, choix_mode);
+							
 						}
 					}
 					break ;
@@ -208,14 +213,19 @@ int init_rues_distances(int choix_mode)
 
 int recherche_nom_rue(char contexte[20]) 
 {
-	int choix_ok = 0, nb_result = 0								;
+	int choix_ok = 0, nb_result = 0	, saisie_ok=0				;
 	int choix = NON_TROUVE, test_saisie_char = 0 				;
 	char nom_rue[TAILLE_NOM_JONCTION]							;
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
 	while(nb_result == 0){
-		printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
-		scanf("%s", nom_rue);
+		while (saisie_ok == 0){
+			saisie_ok=1;
+			printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
+			scanf("%s", nom_rue);
+			verif_saisie_numerique(nom_rue, &saisie_ok);
+			if (saisie_ok==0) printf("Votre saisie ne doit pas contenir de caractères de type numérique\n");
+		}
 		conv_char_speciaux(nom_rue);
 		for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
 		{
@@ -344,13 +354,13 @@ char RemplaceLettre(char c)
     if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
     	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
     	if (index<2) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
-    	else if (index>2 && index<8) lettre =  97; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
-    	else if (index>8 && index<16) lettre =  101; //e
-		else if (index>16 && index<20) lettre =  105; //i
-		else if (index>20 && index<24) lettre =  111; //o
-		else if (index>24 && index<29) lettre =  117; //u
-		else if (index==29) lettre =  99;
-    	
+    	else if (index>1 && index<8) lettre =  97; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
+    	else if (index>7 && index<16) lettre =  101; //e
+		else if (index>15 && index<20) lettre =  105; //i
+		else if (index>19 && index<24) lettre =  111; //o
+		else if (index>23 && index<28) lettre =  117; //u
+		else if (index>27) lettre =  99;
+
     	return lettre; 										/*on renvoie la lettre désirée: _ a e i o u*/
     }
     else return '!'; 										//s'il n'y a pas d'équivalence pour la lettre cherchée, on renvoie !
@@ -416,28 +426,36 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 	      	else /*Sinon*/
 	      	{ 
 	      		jonction_j2 = etapes[i-1]			;	/*jonction_B se voit affecter le numéro de jonction qui se trouve en i-1*/
-	        	printf("de %s  ",tab_jonctions[jonction_j1].nom);
+	        	printf("de %-70s  ",tab_jonctions[jonction_j1].nom);
 	        
 	       		/*test si mode 1 ou mode 2 : peut avoir un impact sur l'affichage*/
 	        	if (choix_mode==1){ 														/*Mode piéton: n'a pas d'impact sur l'affichage car les matrices sont symétriques*/
-	        		printf("suivre %s  ",tab_noms_rues[jonction_j1][jonction_j2])					;
-		        	printf("vers %s  ",tab_jonctions[jonction_j2].nom)        						;
-		        	printf("[Distance : %d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   	;
+	        		printf("suivre %-30s  ",tab_noms_rues[jonction_j1][jonction_j2])					;
+		        	printf("vers %-70s  ",tab_jonctions[jonction_j2].nom)        						;
+		        	printf("[Distance : %3d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   	;
 		        } else { 		/*si le mode de transport est voiture, alors on teste si c'est un sens interdit pour récupérer les bonnes informations. Sinon, on risque de se retrouver avec des 9999 ou des INFINI comme valeurs*/
 		        	if (tab_longueur[jonction_j1][jonction_j2] != INFINI)
 		        	{							/*si le sens de circulation va de J1 à J2*/
-			        	printf("suivre %s  ",tab_noms_rues[jonction_j1][jonction_j2])				;
-		        		printf("vers %s  ",tab_jonctions[jonction_j2].nom)        					;
-		        		printf("[Distance : %d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   ;
+			        	printf("suivre %-30s  ",tab_noms_rues[jonction_j1][jonction_j2])				;
+		        		printf("vers %-70s  ",tab_jonctions[jonction_j2].nom)        					;
+		        		printf("[Distance : %3d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   ;
 		        	} else { 																			/*si le sens de circulation va de J2 à J1*/
-			        	printf("suivre %s  ",tab_noms_rues[jonction_j2][jonction_j1])				;
-		        		printf("vers %s  ",tab_jonctions[jonction_j2].nom)        					;
-		        		printf("[Distance : %d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  	;
+			        	printf("suivre %-30s  ",tab_noms_rues[jonction_j2][jonction_j1])				;
+		        		printf("vers %-70s  ",tab_jonctions[jonction_j2].nom)        					;
+		        		printf("[Distance : %3d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  	;
 	        		}
         		}
       		}
     	}
   	}
+}
+
+void verif_saisie_numerique(char saisie[], int *saisie_ok){
+	for(int i = 0; i < strlen(saisie); i++){
+		if(isdigit(saisie[i])){
+		*saisie_ok=0;
+		}
+	}
 }
 
 /* *********************************************************************
