@@ -34,12 +34,12 @@ struct jonction
 /* appel des procédures et fonctions principales */
 int init_jonction() 			 														;
 int init_rues_distances(int choix_mode)													;
+void reinit_jonctions() 																;
 int recherche_nom_rue()			 														;
 int mode_transport()																	;
 int plus_courte_jonction()																;
 void maj_longueur_jonctions(int antecedent)												;
 void dijkstra(int point_arrivee)														;
-void reinit_jonctions() 																;
 void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix_mode)	;
 
 /* appel des procédures et fonctions annexes */
@@ -221,6 +221,15 @@ int init_rues_distances(int choix_mode)
 	return test_init;
 }
 
+/* procédure de ré-initialisation des jonctions dans tab_jonctions */
+void reinit_jonctions() {
+	for (int i = 0; i < nbjonction; i++) {
+		tab_jonctions[i].antecedent = NON_TROUVE	;
+		tab_jonctions[i].longueur = INFINI			;
+		tab_jonctions[i].passage = 0				;
+	}
+}
+
 /* recherche nom rue suite à saisie utilisateur */
 
 int recherche_nom_rue(char contexte[20]) 
@@ -338,16 +347,8 @@ void dijkstra(int point_arrivee) {
 		//printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);		// test de longueur finale
 }
 
-/* procédure de ré-initialisation des jonctions dans tab_jonctions */
-void reinit_jonctions() {
-	for (int i = 0; i < nbjonction; i++) {
-		tab_jonctions[i].antecedent = NON_TROUVE	;
-		tab_jonctions[i].longueur = INFINI			;
-		tab_jonctions[i].passage = 0				;
-	}
-}
 
-/* procédue d'affichage de l'itinéraire détaillé */
+/* procédure d'affichage de l'itinéraire détaillé */
 void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix_mode) {
 
   	/*Si la longueur de la jonction d'arrivée est à 9999, il n'y a pas de chemin*/
@@ -375,14 +376,12 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 
 	    for(int i=nb_jonctions_afficher-1; i>0; i--) /*On commence une case */
 	    { 
-	    	jonction_j1 = etapes[i]		 /*On affecte à jonction_A le numéro de la jonction qui se trouve dans la case i*/						;
-	      	if(jonction_j1 == num_jonction_arrivee)	 /*On teste si jonction_A est la jonction d'arrivée. Si oui, on arrête l'affichage et on lui affiche le récapitulatif du trajet*/
+	    	jonction_j1 = etapes[i]	;	 /*On affecte à jonction_j1 le numéro de la jonction qui se trouve dans la case i*/	
+	      	if(jonction_j1 == num_jonction_arrivee)	 /*On teste si jonction_j1 est la jonction d'arrivée. Si oui, on arrête l'affichage et on lui affiche le récapitulatif du trajet*/
 	      	{
 	       		printf("\nVous êtes arrivé(e) à %s.\nDistance totale parcourue (en mètres) : %d\n",tab_jonctions[jonction_j1].nom, tab_jonctions[num_jonction_arrivee].longueur)		;
-	      	}
-	      	else /*Sinon*/
-	      	{ 
-	      		jonction_j2 = etapes[i-1]			;	/*jonction_B se voit affecter le numéro de jonction qui se trouve en i-1*/
+	      	} else { 
+	      		jonction_j2 = etapes[i-1]			;	/*jonction_j2 se voit affecter le numéro de jonction qui se trouve en i-1*/
 	        	printf("de %-70s  ",tab_jonctions[jonction_j1].nom);
 	        
 	       		/*test si mode 1 ou mode 2 : peut avoir un impact sur l'affichage*/
@@ -397,10 +396,10 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 			        	printf("suivre %-30s  ",tab_noms_rues[jonction_j1][jonction_j2])			;
 		        		printf("vers %-70s  ",tab_jonctions[jonction_j2].nom)        				;
 		        		printf("[Distance : %3d mètres]\n",tab_longueur[jonction_j1][jonction_j2])  ;
-		        	} else { 																			/*si le sens de circulation va de J2 à J1*/
-			        	printf("suivre %-30s  ",tab_noms_rues[jonction_j2][jonction_j1])				;
-		        		printf("vers %-70s  ",tab_jonctions[jonction_j2].nom)        					;
-		        		printf("[Distance : %3d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  	;
+		        	} else { 	/*si le sens de circulation va de J2 à J1*/
+			        	printf("suivre %-30s  ",tab_noms_rues[jonction_j2][jonction_j1])			;
+		        		printf("vers %-70s  ",tab_jonctions[jonction_j2].nom)        				;
+		        		printf("[Distance : %3d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  ;
 	        		}
         		} 
       		}
