@@ -31,21 +31,22 @@ struct jonction
 	int passage						;
 };
 
-/* appel des procédures et fonctions */
+/* appel des procédures et fonctions principales */
 int init_jonction() 			 														;
 int init_rues_distances(int choix_mode)													;
 int recherche_nom_rue()			 														;
 int mode_transport()																	;
-void purge()					 														;
 int plus_courte_jonction()																;
 void maj_longueur_jonctions(int antecedent)												;
-char RemplaceLettre(char c)																;
-void conv_char_speciaux(char saisie[])													;
 void dijkstra(int point_arrivee)														;
 void reinit_jonctions() 																;
 void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix_mode)	;
-void verif_saisie_numerique(char saisie[], int *saisie_ok)								;
 
+/* appel des procédures et fonctions annexes */
+void purge()					 														;
+void conv_char_speciaux(char saisie[])													;
+char RemplaceLettre(char c)																;
+void verif_saisie_numerique(char saisie[], int *saisie_ok)								;
 
 /* variables globales */
 
@@ -265,7 +266,7 @@ int recherche_nom_rue(char contexte[20])
 				if (choix == atoi(tab_result[i]) && choix != 0) 
 				{
 					choix_ok = 1 ;
-					printf("%s\n", tab_result[i]); // test
+					printf("Vous avez sélectionné : %s\n", tab_result[i]); // affichage du choix
 				}
 			}
 		} else {
@@ -298,13 +299,6 @@ int mode_transport(){
 	return choix_mode;
 }
 
-/* purge de saisie */
-
-void purge() {
-	int purge;
-	while((purge = fgetc(stdin)) != '\n' && purge != EOF) {}
-}
-
 /* recherche de la jonction avec la longueur la plus faible */
 int plus_courte_jonction() {
 	int courte = NON_TROUVE, longueur = INFINI ;
@@ -330,56 +324,7 @@ void maj_longueur_jonctions(int antecedent) {
 	}
 }
 
-/*fonction pour corriger les caractères spéciaux*/
-void conv_char_speciaux(char saisie[]){
-	int taille, i, nb_rempl=0;
-	char temp;
-
-	taille = strlen(saisie);
-	for (i=0; i<taille; i++){
-		if 	(saisie[i]<'A' || saisie[i]>'z'){																	/*on ne considère que les caractères qui ne sont pas des lettres, on inclut les caractères avec le code ASCII 91, 92, 93, 94, 95, 96*/
-			if (RemplaceLettre(saisie[i])!='!'){ 																/*si la fonction RemplaceLettre renvoie autre chose que '!'*/
-				if (RemplaceLettre(saisie[i])=='_'){ 															/*si elle renvoie '_'*/ 
-					saisie[i]=RemplaceLettre(saisie[i]); }														/*on remplace ' ou - par _*/
-				else{																							/*sinon*/
-					int Index_A_Supp = i; 																		/*on retient l'index du caractère à modifier*/
-					memmove(&saisie[Index_A_Supp], &saisie[Index_A_Supp + 1], strlen(saisie) - Index_A_Supp);	 /*on décale les n caractères après le i(exclus) dans la case[i] */
-					saisie[i]=RemplaceLettre(saisie[i]);														/*on remplace le caractère accentués par son équivalent*/
-					nb_rempl++; 																				/*on compte le nombre de changements faits sur les caractères codés sur 2 octets. A noter que ce nombre avaance par pas de 2*/
-					}
-				}
-			}
-		}
-	saisie[taille-(nb_rempl/2)]='\0'; 	/*on supprime l'autre octet des caractères codés sur 2 octets. Comme le nbre de remplacement est compté en double, on le divise/2 pour ne pas supprimer plus de caractères qu'il ne faut*/
-}	
-
-
-
-/*fonction pour remplacer les caractères accentués*/
-char RemplaceLettre(char c)
-{
-    int i;
-    char lettre;
-    char* liste_equiv = "'-àâäéêèëîïôöûüç";
-
-    const char *lettre_equiv = strchr(liste_equiv, c); 		/*pointe sur la première occurence de c rencontrée dans liste_equiv*/
-    if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
-    	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
-    	if (index<2) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
-
-    	else if (index>1 && index<8) lettre =  97	; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
-    	else if (index>7 && index<16) lettre =  101	; //e
-		else if (index>15 && index<20) lettre =  105; //i
-		else if (index>19 && index<24) lettre =  111; //o
-		else if (index>23 && index<28) lettre =  117; //u
-		else if (index>27) lettre =  99;
-
-    	return lettre; 										/*on renvoie la lettre désirée: _ a e i o u*/
-    }
-    else return '!'; 										//s'il n'y a pas d'équivalence pour la lettre cherchée, on renvoie !
-}
-
-/* dijkstra */
+/* algo de dijkstra */
 
 void dijkstra(int point_arrivee) {
 	int jonction_tmp = NON_TROUVE 	;
@@ -390,9 +335,7 @@ void dijkstra(int point_arrivee) {
 		// test affichage des jonctions traitées + longueur
 		//printf("\n nom --> %s | longueur --> %d\n", tab_jonctions[jonction_tmp].nom, tab_jonctions[jonction_tmp].longueur);
 		}
-		printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);
-		// fonction d'affichage à insérer ci-dessous
-		
+		//printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);		// test de longueur finale
 }
 
 /* procédure de ré-initialisation des jonctions dans tab_jonctions */
@@ -463,6 +406,60 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
       		}
     	}
   	}
+}
+
+/* purge de saisie */
+
+void purge() {
+	int purge;
+	while((purge = fgetc(stdin)) != '\n' && purge != EOF) {}
+}
+
+/*fonction pour corriger les caractères spéciaux*/
+void conv_char_speciaux(char saisie[]){
+	int taille, i, nb_rempl=0;
+	char temp;
+
+	taille = strlen(saisie);
+	for (i=0; i<taille; i++){
+		if 	(saisie[i]<'A' || saisie[i]>'z'){																	/*on ne considère que les caractères qui ne sont pas des lettres, on inclut les caractères avec le code ASCII 91, 92, 93, 94, 95, 96*/
+			if (RemplaceLettre(saisie[i])!='!'){ 																/*si la fonction RemplaceLettre renvoie autre chose que '!'*/
+				if (RemplaceLettre(saisie[i])=='_'){ 															/*si elle renvoie '_'*/ 
+					saisie[i]=RemplaceLettre(saisie[i]); }														/*on remplace ' ou - par _*/
+				else{																							/*sinon*/
+					int Index_A_Supp = i; 																		/*on retient l'index du caractère à modifier*/
+					memmove(&saisie[Index_A_Supp], &saisie[Index_A_Supp + 1], strlen(saisie) - Index_A_Supp);	 /*on décale les n caractères après le i(exclus) dans la case[i] */
+					saisie[i]=RemplaceLettre(saisie[i]);														/*on remplace le caractère accentués par son équivalent*/
+					nb_rempl++; 																				/*on compte le nombre de changements faits sur les caractères codés sur 2 octets. A noter que ce nombre avaance par pas de 2*/
+					}
+				}
+			}
+		}
+	saisie[taille-(nb_rempl/2)]='\0'; 	/*on supprime l'autre octet des caractères codés sur 2 octets. Comme le nbre de remplacement est compté en double, on le divise/2 pour ne pas supprimer plus de caractères qu'il ne faut*/
+}	
+
+/*fonction pour remplacer les caractères accentués*/
+char RemplaceLettre(char c)
+{
+    int i;
+    char lettre;
+    char* liste_equiv = "'-àâäéêèëîïôöûüç";
+
+    const char *lettre_equiv = strchr(liste_equiv, c); 		/*pointe sur la première occurence de c rencontrée dans liste_equiv*/
+    if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
+    	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
+    	if (index<2) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
+
+    	else if (index>1 && index<8) lettre =  97	; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
+    	else if (index>7 && index<16) lettre =  101	; //e
+		else if (index>15 && index<20) lettre =  105; //i
+		else if (index>19 && index<24) lettre =  111; //o
+		else if (index>23 && index<28) lettre =  117; //u
+		else if (index>27) lettre =  99;
+
+    	return lettre; 										/*on renvoie la lettre désirée: _ a e i o u*/
+    }
+    else return '!'; 										//s'il n'y a pas d'équivalence pour la lettre cherchée, on renvoie !
 }
 
 void verif_saisie_numerique(char saisie[], int *saisie_ok){
