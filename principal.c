@@ -246,7 +246,9 @@ int recherche_nom_rue(char contexte[20])
 			scanf("%s", nom_rue);
 			verif_saisie_numerique(nom_rue, &saisie_ok);
 			if (saisie_ok==0) printf("Votre saisie ne doit pas contenir de caractères de type numérique\n");
+			purge();
 		}
+		saisie_ok=0;	/*on remet saisie_ok à 0 sinon on part en boucle infinie*/
 		conv_char_speciaux(nom_rue);
 
 		for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
