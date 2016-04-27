@@ -1,3 +1,15 @@
+/* *********************************************************************
+
+projet réalisé dans le cadre du master PISE / Université Paris Diderot 
+par Lyes KESSAL & Michael ARBIB
+année universitaire 2015/2016
+
+objectif :
+
+réaliser un programme qui indique le plus court chemin d'un point A à un point B, en langage C
+
+********************************************************************* */
+
 #define _GNU_SOURCE /*ajout car strcasestr n'est pas une fonction standard du C*/
 #include <stdio.h>
 #include <string.h>
@@ -84,10 +96,10 @@ int main(int argc, char const *argv[])
 					
 					choix_mode = mode_transport()	;
 					if (init_rues_distances(choix_mode) != NON_TROUVE) {
-						point_depart = recherche_nom_rue("de départ")	; // numéro du point de départ
-						point_arrivee = recherche_nom_rue("d'arrivée")	; // numéro du point d'arrivée
-						tab_jonctions[point_depart].longueur = 0		; // initialisation de la longueur de la rue du point de départ à 0
-						dijkstra(point_arrivee)							; // fonction qui utilise l'algo de Dijkstra
+						point_depart = recherche_nom_rue("de départ")			; // numéro du point de départ
+						point_arrivee = recherche_nom_rue("d'arrivée")			; // numéro du point d'arrivée
+						tab_jonctions[point_depart].longueur = 0				; // initialisation de la longueur de la rue du point de départ à 0
+						dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
 					}
 
@@ -95,11 +107,12 @@ int main(int argc, char const *argv[])
 				case 2 : // trajet retour suite au choix 1
 					if (itineraire_de_base_calcule == NON_TROUVE)
 					{
-						printf("Merci de saisir un choix valide\n")	;
+						printf("Merci de saisir un choix valide\n")				;
 					} else { // on inverse les points de départ et arrivée pour recalculer l'itinéraire de retour
-						reinit_jonctions() 							; // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
-						tab_jonctions[point_arrivee].longueur = 0	; // initialisation de la longueur de la rue du point d'arrivée à 0
-						dijkstra(point_depart) 						; // fonction qui utilise l'algo de Dijkstra
+						reinit_jonctions() 										; // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
+						tab_jonctions[point_arrivee].longueur = 0				; // initialisation de la longueur de la rue du point d'arrivée à 0
+						dijkstra(point_depart) 									; // fonction qui utilise l'algo de Dijkstra
+						affiche_chemin(point_arrivee, point_depart, choix_mode) ; // affichage  
 					}
 					break ;
 				case 3 : // mode de transport alternatif avec itinéraire du choix 1
@@ -116,9 +129,10 @@ int main(int argc, char const *argv[])
 						printf("mode --> %d\n", choix_mode);
 						if (init_rues_distances(choix_mode) != NON_TROUVE) 
 						{
-							reinit_jonctions()							; // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
-							tab_jonctions[point_depart].longueur = 0	; // initialisation de la longueur de la rue du point de départ à 0
-							dijkstra(point_arrivee)						; // fonction qui utilise l'algo de Dijkstra
+							reinit_jonctions()										; // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
+							tab_jonctions[point_depart].longueur = 0				; // initialisation de la longueur de la rue du point de départ à 0
+							dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
+							affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
 						}
 					}
 					break ;
@@ -184,18 +198,18 @@ int init_rues_distances(int choix_mode)
 		// si ouverture fichier ko 
 		test_init = NON_TROUVE;
 		if (fichier_noms == NULL){
-			printf("Erreur de chargement du fichier des noms de rues.\n");	
+			printf("Erreur de chargement du fichier des noms de rues.\n")		;	
 		} else {
-			printf("Erreur de chargement du fichier des longueurs de rues.\n");
+			printf("Erreur de chargement du fichier des longueurs de rues.\n")	;
 		}
 	} else {
 		// si ouverture fichier ok
 		// double boucle de parcours pour les affecter les données des fichiers 
 		for(int i = 0; i < nbjonction; i++){
 			for(int j = 0; j < nbjonction; j++){
-				fscanf(fichier_noms,"%s", nom_rue); // dans matrice des noms
-				strcpy(tab_noms_rues[i][j], nom_rue);
-				fscanf(fichier_longueur, "%d", &tab_longueur[i][j]); // dans matrice des longueurs
+				fscanf(fichier_noms,"%s", nom_rue)						; // dans matrice des noms
+				strcpy(tab_noms_rues[i][j], nom_rue)					;
+				fscanf(fichier_longueur, "%d", &tab_longueur[i][j])		; // dans matrice des longueurs
 			}
 		}
 	}
@@ -214,17 +228,18 @@ int recherche_nom_rue(char contexte[20])
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
 	while(nb_result == 0){
-		printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
-		scanf("%s", nom_rue);
-		conv_char_speciaux(nom_rue);
+		printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \n");
+		printf("\nNom du point %s : ", contexte)	;
+		scanf("%s", nom_rue)						;
+		conv_char_speciaux(nom_rue)					;
 		for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
 		{
 			test = strcasestr(tab_jonctions[i].nom, nom_rue) ;
 			if(test != NULL)
 			{
 				nb_result++;
-				printf("%-s\n", tab_jonctions[i].nom);
-				strcpy(tab_result[i], tab_jonctions[i].nom);
+				printf("%-s\n", tab_jonctions[i].nom)		;
+				strcpy(tab_result[i], tab_jonctions[i].nom)	;
 			}
 		}
 		if(nb_result == 0) {
@@ -264,10 +279,10 @@ int recherche_nom_rue(char contexte[20])
 int mode_transport(){
 	int choix_mode = 0 ;
 	while(choix_mode != 1 && choix_mode != 2){	
-		printf("\nChoisissez votre mode de transport :\n\n");
-		printf("1 - piéton\n2 - voiture\n\n");
-		printf("Choix : ");
-		scanf("%d", &choix_mode);
+		printf("\nChoisissez votre mode de transport :\n\n")	;
+		printf("1 - piéton\n2 - voiture\n\n")					;
+		printf("Choix : ")										;
+		scanf("%d", &choix_mode)								;
 		if(choix_mode != 1 && choix_mode != 2){
 			purge();
 			printf("Merci de sélectionner le choix 1 ou 2.\n\n");
@@ -303,7 +318,7 @@ void maj_longueur_jonctions(int antecedent) {
 		if ((tab_jonctions[i].longueur > (tab_jonctions[antecedent].longueur + tab_longueur[antecedent][i])) && tab_jonctions[i].passage == 0) 
 		{ // elle est faite seulement si la longueur de la jonction est supérieure à celle de son antécédant + la longueur entre les deux (dans le tableau des longueurs) et si on n'est pas déjà passé par cette jonction (cf : pathfinding avec dijkstra - openclassroom)
 			tab_jonctions[i].longueur = tab_jonctions[antecedent].longueur + tab_longueur[antecedent][i] 	; // m-à-j longueur 
-			tab_jonctions[i].antecedent = antecedent 											; // m-à-j antécédent 
+			tab_jonctions[i].antecedent = antecedent 														; // m-à-j antécédent 
 		}
 	}
 }
@@ -344,8 +359,8 @@ char RemplaceLettre(char c)
     if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
     	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
     	if (index<2) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
-    	else if (index>2 && index<8) lettre =  97; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
-    	else if (index>8 && index<16) lettre =  101; //e
+    	else if (index>2 && index<8) lettre =  97	; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
+    	else if (index>8 && index<16) lettre =  101	; //e
 		else if (index>16 && index<20) lettre =  105; //i
 		else if (index>20 && index<24) lettre =  111; //o
 		else if (index>24 && index<29) lettre =  117; //u
@@ -399,7 +414,8 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
   		etapes[0]=num_jonction_arrivee		; /*on met la jonction d'arrivée dans la 1ère case du tableau*/
   		jonction_temp=num_jonction_arrivee	; /*Initailisation de la variable avec la valeur de num_jonction_arrivee*/
   		
-    	while (jonction_temp != NON_TROUVE) { 
+    	while (jonction_temp != NON_TROUVE) 
+    	{ 
     		etapes[nb_jonctions_afficher++]=jonction_temp			; /*on commence par mettre le num de la jonction d'arrivée dans la case avec l'indice 1 et on boucle tant que la condition est respectée*/
       		jonction_temp = tab_jonctions[jonction_temp].antecedent ; /*on affecte le prédecesseur à jonction_temp pour remonter jusqu'au point de départ */
     	}
@@ -420,8 +436,8 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 	        
 	       		/*test si mode 1 ou mode 2 : peut avoir un impact sur l'affichage*/
 	        	if (choix_mode==1){ 														/*Mode piéton: n'a pas d'impact sur l'affichage car les matrices sont symétriques*/
-	        		printf("suivre %s  ",tab_noms_rues[jonction_j1][jonction_j2])					;
-		        	printf("vers %s  ",tab_jonctions[jonction_j2].nom)        						;
+	        		printf("Suivre %s \n",tab_noms_rues[jonction_j1][jonction_j2])					;
+		        	printf("\tvers %s  ",tab_jonctions[jonction_j2].nom)        					;
 		        	printf("[Distance : %d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   	;
 		        } else { 		/*si le mode de transport est voiture, alors on teste si c'est un sens interdit pour récupérer les bonnes informations. Sinon, on risque de se retrouver avec des 9999 ou des INFINI comme valeurs*/
 		        	if (tab_longueur[jonction_j1][jonction_j2] != INFINI)
@@ -434,20 +450,8 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 		        		printf("vers %s  ",tab_jonctions[jonction_j2].nom)        					;
 		        		printf("[Distance : %d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  	;
 	        		}
-        		}
+        		} 
       		}
     	}
   	}
 }
-
-/* *********************************************************************
-
-projet réalisé dans le cadre du master PISE / Université Paris Diderot 
-par Lyes KESSAL & Michael ARBIB
-année universitaire 2015/2016
-
-objectif :
-
-réaliser un programme qui indique le plus court chemin d'un point A à un point B, en langage C
-
-********************************************************************* */
