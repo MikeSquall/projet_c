@@ -47,6 +47,7 @@ void purge()					 														;
 void conv_char_speciaux(char saisie[])													;
 char RemplaceLettre(char c)																;
 void verif_saisie_numerique(char saisie[], int *saisie_ok)								;
+void recup_saisie_user(char *ch)														;
 
 /* variables globales */
 
@@ -239,16 +240,16 @@ int recherche_nom_rue(char contexte[20])
 	char nom_rue[TAILLE_NOM_JONCTION]							;
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
 
+	purge(); /*On vide le buffer avant de demander la saisie à l'utilisateur*/
 	while(nb_result == 0){
 		while (saisie_ok == 0){
 			saisie_ok=1;
-			printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
-			scanf("%s", nom_rue);
+  			printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
+  			recup_saisie_user(nom_rue) ; 
 			verif_saisie_numerique(nom_rue, &saisie_ok);
 			if (saisie_ok==0) printf("Votre saisie ne doit pas contenir de caractères de type numérique\n");
-			purge();
 		}
-		saisie_ok=0;	/*on remet saisie_ok à 0 sinon on part en boucle infinie*/
+		saisie_ok=0;	/*on remet saisie_ok à 0 sinon on part en boucle infinie dans le cas où la recherche ne donne rien*/
 		conv_char_speciaux(nom_rue);
 
 		for(int i = 0 ; i < nbjonction ; i++) // boucle de recherche du nom saisie dans liste des rues
@@ -262,7 +263,8 @@ int recherche_nom_rue(char contexte[20])
 			}
 		}
 		if(nb_result == 0) {
-			printf("Le nom que vous avez saisi ne correspond à aucune données en mémoire.\nMerci de ressaisir le nom ou de choisir une autre rue.\n\n");
+				//purge();
+				printf("Le nom que vous avez saisi ne correspond à aucune données en mémoire.\nMerci de ressaisir le nom ou de choisir une autre rue.\n\n");
 		}
 	}
 	
@@ -444,19 +446,19 @@ char RemplaceLettre(char c)
 {
     int i;
     char lettre;
-    char* liste_equiv = "'-àâäéêèëîïôöûüç";
+    char* liste_equiv = "' -àâäéêèëîïôöûüç";
 
     const char *lettre_equiv = strchr(liste_equiv, c); 		/*pointe sur la première occurence de c rencontrée dans liste_equiv*/
     if (lettre_equiv != NULL){ 								/*si le pointeur n'est pas NULL on fait*/
     	int index = lettre_equiv - liste_equiv; 			/*on soustrait le premier pointeur du second pour avoir l'indice du pointeur *lettre_equiv. En fonction de l'index, on renvoie la bonne lettre*/
-    	if (index<2) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
+    	if (index<3) lettre = 95; //_ 						//on met 2 car ' et - sont codés sur 1 octet'
 
-    	else if (index>1 && index<8) lettre =  97	; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
-    	else if (index>7 && index<16) lettre =  101	; //e
-		else if (index>15 && index<20) lettre =  105; //i
-		else if (index>19 && index<24) lettre =  111; //o
-		else if (index>23 && index<28) lettre =  117; //u
-		else if (index>27) lettre =  99;
+    	else if (index>2 && index<9) lettre =  97	; //a 		//on avance par pas de 2 car les lettres accentuées sont codés sur 2 octets : à est référencé par les index 2 et 3 par exemple. Même logique pour les autres lettres
+    	else if (index>8 && index<17) lettre =  101	; //e
+		else if (index>16 && index<21) lettre =  105; //i
+		else if (index>20 && index<25) lettre =  111; //o
+		else if (index>24 && index<29) lettre =  117; //u
+		else if (index>28) lettre =  99;
 
     	return lettre; 										/*on renvoie la lettre désirée: _ a e i o u*/
     }
@@ -472,3 +474,15 @@ void verif_saisie_numerique(char saisie[], int *saisie_ok){
 	}
 }
 
+/**/
+
+void recup_saisie_user(char saisie[])
+{
+ 	char tmp=' ' ;
+ 	int i=0 ;
+ 	while ((tmp=getchar()) != '\n')
+ 	{
+		saisie[i++]=tmp;
+ 	}
+ 	saisie[i++]='\0';
+}
