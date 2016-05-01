@@ -98,15 +98,20 @@ int main(int argc, char const *argv[])
 					break ;
 				case 1 : // calcul itinéraire
 					
-					itineraire_de_base_calcule = 1 ;
+					
 					
 					choix_mode = mode_transport()	;
 					if (init_rues_distances(choix_mode) != NON_TROUVE) {
+						if (itineraire_de_base_calcule == 1) 
+						{
+							reinit_jonctions() 									;
+						}
 						point_depart = recherche_nom_rue("de départ")			; // numéro du point de départ
 						point_arrivee = recherche_nom_rue("d'arrivée")			; // numéro du point d'arrivée
 						tab_jonctions[point_depart].longueur = 0				; // initialisation de la longueur de la rue du point de départ à 0
 						dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
+						itineraire_de_base_calcule = 1 ;
 					}
 
 					break ;
