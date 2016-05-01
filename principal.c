@@ -15,9 +15,9 @@ réaliser un programme qui indique le plus court chemin d'un point A à un point
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#define NB_JONCTIONS 700 // à modifier en fonction du nombre de jonctions défini
-#define TAILLE_NOM_FICHIER 100 // taille max d'un nom de fichier 
-#define TAILLE_NOM_JONCTION 70 // taille max d'un nom de jonction --> 62+4 caractères max 
+#define NB_JONCTIONS 520 		// à modifier en fonction du nombre de jonctions défini
+#define TAILLE_NOM_FICHIER 100 	// taille max d'un nom de fichier 
+#define TAILLE_NOM_JONCTION 70 	// taille max d'un nom de jonction --> 62+4 caractères max 
 #define NON_TROUVE -1
 #define INFINI 9999
 
@@ -473,8 +473,6 @@ void verif_saisie_numerique(char saisie[], int *saisie_ok){
 		}
 	}
 }
-
-/**/
 
 void recup_saisie_user(char saisie[])
 {
