@@ -1,5 +1,3 @@
-// branch bugfix //
-
 /* *********************************************************************
 
 projet réalisé dans le cadre du master PISE / Université Paris Diderot 
@@ -275,7 +273,7 @@ int recherche_nom_rue(char contexte[20])
 		}
 	}
 	
-	printf("\nEntrez le numéro de votre point %s : ", contexte) ;
+	printf("\nEntrez le numéro de jonction correspondant à votre point %s : ", contexte) ;
 	while(!choix_ok) // boucle de vérification de la saisie
 	{
 		test_saisie_char = scanf("%d",&choix) ;
