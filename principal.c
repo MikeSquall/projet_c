@@ -1,3 +1,5 @@
+// branch bugfix //
+
 /* *********************************************************************
 
 projet réalisé dans le cadre du master PISE / Université Paris Diderot 
