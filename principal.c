@@ -244,15 +244,22 @@ int recherche_nom_rue(char contexte[20])
 	int choix = NON_TROUVE, test_saisie_char = 0 				;
 	char nom_rue[TAILLE_NOM_JONCTION]							;
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
+	int test_esp												;
 
 	purge(); /*On vide le buffer avant de demander la saisie à l'utilisateur*/
 	while(nb_result == 0){
 		while (saisie_ok == 0){
 			saisie_ok=1;
   			printf("\nEntrez le nom de la voie, sans son type (rue, avenue, boulevard, ...)\nExemple : pour la rue de la Roquette, tapez roquette \nNom du point %s : ", contexte);
-  			recup_saisie_user(nom_rue) ; 
-			verif_saisie_numerique(nom_rue, &saisie_ok);
-			if (saisie_ok==0) printf("Votre saisie ne doit pas contenir de caractères de type numérique\n");
+  			recup_saisie_user(nom_rue);
+  			if (nom_rue[0] == '\0'){
+  				saisie_ok=0;
+  				printf ("Attention! Vous avez validé en n'ayant fait aucune saisie!\n");
+  			}
+  			else{
+				verif_saisie_numerique(nom_rue, &saisie_ok);
+				if (saisie_ok==0) printf("Votre saisie ne doit pas contenir de caractères de type numérique\n");
+  			}
 		}
 		saisie_ok=0;	/*on remet saisie_ok à 0 sinon on part en boucle infinie dans le cas où la recherche ne donne rien*/
 		conv_char_speciaux(nom_rue);
