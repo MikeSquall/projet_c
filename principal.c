@@ -89,6 +89,7 @@ int main(int argc, char const *argv[])
 			printf("\n0 - Quitter le programme\n")											;
 			printf("\nVotre choix : ")														;
 			scanf("%d", &choix_menu)														;
+			purge()																			;
 			printf("\n")																	;
 
 			switch (choix_menu) 
@@ -97,9 +98,6 @@ int main(int argc, char const *argv[])
 					printf("\nMerci d'avoir utilisé ce programme.\nAu revoir et à bientôt.\n");
 					break ;
 				case 1 : // calcul itinéraire
-					
-					
-					
 					choix_mode = mode_transport()	;
 					if (init_rues_distances(choix_mode) != NON_TROUVE) {
 						if (itineraire_de_base_calcule == 1) 
@@ -121,7 +119,7 @@ int main(int argc, char const *argv[])
 					if (itineraire_de_base_calcule == NON_TROUVE)
 					{
 						printf("Merci de saisir un choix valide\n")				;
-					} else if (retour_checked == NON_TROUVE) {
+					} else if (retour_checked == 1) {
 						printf("Vous avez déjà calculé l'itinéraire de retour pour ce trajet.\n");
 					} else { // on inverse les points de départ et arrivée pour recalculer l'itinéraire de retour
 						reinit_jonctions() 										; // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
@@ -135,11 +133,13 @@ int main(int argc, char const *argv[])
 					if (itineraire_de_base_calcule == NON_TROUVE)
 					{
 						printf("Merci de saisir un choix valide\n")	;
+					} else if (alternatif_checked == 1) {
+							printf("Vous avez déjà visualisé l'itinéraire alternatif pour ce trajet.\n");
 					} else {
 						if (choix_mode == 1)
 						{
 							choix_mode = 2 ;
-						} else {
+						}  else {
 							choix_mode = 1 ; 
 						}
 						printf("mode --> %d\n", choix_mode);
