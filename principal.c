@@ -73,6 +73,8 @@ int main(int argc, char const *argv[])
 	int choix_mode = 0								;
 	int choix_menu = NON_TROUVE 					;
 	int itineraire_de_base_calcule = NON_TROUVE		;
+	int retour_checked = NON_TROUVE					;
+	int alternatif_checked = NON_TROUVE				;
 
 	if (init_jonction() != NON_TROUVE) {
 		printf("\nBienvenue dans le programme de calcul du chemin le plus court.\nCe programme vous donnera le trajet le plus court entre 2 intersections de rues du 11e arrondissement de Paris.\n");
@@ -109,7 +111,9 @@ int main(int argc, char const *argv[])
 						tab_jonctions[point_depart].longueur = 0				; // initialisation de la longueur de la rue du point de départ à 0
 						dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
-						itineraire_de_base_calcule = 1 ;
+						itineraire_de_base_calcule = 1 							;
+						retour_checked = NON_TROUVE								;
+						alternatif_checked = NON_TROUVE 						;
 					}
 
 					break ;
@@ -117,11 +121,14 @@ int main(int argc, char const *argv[])
 					if (itineraire_de_base_calcule == NON_TROUVE)
 					{
 						printf("Merci de saisir un choix valide\n")				;
+					} else if (retour_checked == NON_TROUVE) {
+						printf("Vous avez déjà calculé l'itinéraire de retour pour ce trajet.\n");
 					} else { // on inverse les points de départ et arrivée pour recalculer l'itinéraire de retour
 						reinit_jonctions() 										; // ré-initialisation du tableau des jonctions pour repartir du point d'arrivée du calcul d'itinéraire précédent
 						tab_jonctions[point_arrivee].longueur = 0				; // initialisation de la longueur de la rue du point d'arrivée à 0
 						dijkstra(point_depart) 									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_arrivee, point_depart, choix_mode) ; // affichage  
+						retour_checked = 1										;
 					}
 					break ;
 				case 3 : // mode de transport alternatif avec itinéraire du choix 1
@@ -142,6 +149,7 @@ int main(int argc, char const *argv[])
 							tab_jonctions[point_depart].longueur = 0				; // initialisation de la longueur de la rue du point de départ à 0
 							dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 							affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
+							alternatif_checked = 1 									;
 						}
 					}
 					break ;
