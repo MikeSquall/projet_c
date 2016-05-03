@@ -89,7 +89,6 @@ int main(int argc, char const *argv[])
 			printf("\n0 - Quitter le programme\n")											;
 			printf("\nVotre choix : ")														;
 			scanf("%d", &choix_menu)														;
-			purge()																			;
 			printf("\n")																	;
 
 			switch (choix_menu) 
@@ -112,6 +111,7 @@ int main(int argc, char const *argv[])
 						itineraire_de_base_calcule = 1 							;
 						retour_checked = NON_TROUVE								;
 						alternatif_checked = NON_TROUVE 						;
+						choix_menu = NON_TROUVE									; // remise à état initial de la variable choix_menu
 					}
 
 					break ;
@@ -127,6 +127,7 @@ int main(int argc, char const *argv[])
 						dijkstra(point_depart) 									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_arrivee, point_depart, choix_mode) ; // affichage  
 						retour_checked = 1										;
+						choix_menu = NON_TROUVE									; // remise à état initial de la variable choix_menu
 					}
 					break ;
 				case 3 : // mode de transport alternatif avec itinéraire du choix 1
@@ -150,6 +151,7 @@ int main(int argc, char const *argv[])
 							dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 							affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
 							alternatif_checked = 1 									;
+							choix_menu = NON_TROUVE 								; // remise à état initial de la variable choix_menu
 						}
 					}
 					break ;
