@@ -1,0 +1,9 @@
+Voici le plus court chemin pour aller de : 
+ 428_jonction_rue_Oberkampf_cite_Griset 
+	 à 429_jonction_rue_Oberkampf_cite_Ribot 
+
+de 428_jonction_rue_Oberkampf_cite_Griset                                  suivre rue_Oberkampf                   vers 422_jonction_rue_Oberkampf_av_Jean_Aicard                               [Distance :   0 mètres]
+de 422_jonction_rue_Oberkampf_av_Jean_Aicard                               suivre rue_Oberkampf                   vers 429_jonction_rue_Oberkampf_cite_Ribot                                   [Distance :  34 mètres]
+
+Vous êtes arrivé(e) à 429_jonction_rue_Oberkampf_cite_Ribot.
+Distance totale parcourue (en mètres) : 34
