@@ -48,6 +48,7 @@ void conv_char_speciaux(char saisie[])													;
 char RemplaceLettre(char c)																;
 void verif_saisie_numerique(char saisie[], int *saisie_ok)								;
 void recup_saisie_user(char *ch)														;
+void save_trajet(int num_jonction_depart, int num_jonction_arrivee, int choix_mode) 	;
 
 /* variables globales */
 
@@ -109,9 +110,9 @@ int main(int argc, char const *argv[])
 						dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
 						itineraire_de_base_calcule = 1 							;
-						retour_checked = NON_TROUVE								;
-						alternatif_checked = NON_TROUVE 						;
 						choix_menu = NON_TROUVE									; // remise à état initial de la variable choix_menu
+						retour_checked = NON_TROUVE								; // ré-init de la variable pour faire le retour sur nouvel itinéraire
+						alternatif_checked = NON_TROUVE 						; // ré-init de la variable pour faire alternatif sur nouvel itinéraire
 					}
 
 					break ;
@@ -143,7 +144,7 @@ int main(int argc, char const *argv[])
 						}  else {
 							choix_mode = 1 ; 
 						}
-						printf("mode --> %d\n", choix_mode);
+						//printf("mode --> %d\n", choix_mode);
 						if (init_rues_distances(choix_mode) != NON_TROUVE) 
 						{
 							reinit_jonctions()										; // ré-initialisation du tableau des jonctions pour recalculer l'itinéraire précédent
@@ -367,8 +368,6 @@ void dijkstra(int point_arrivee) {
 	while ((jonction_tmp = plus_courte_jonction()) != point_arrivee) { // tant que la plus courte jonction traitée n'est pas la jonction d'arrivée
 		tab_jonctions[jonction_tmp].passage = 1 ;  // on marque la jonction pour dire qu'on y est passé et qu'elle ne nous intéresse plus
 		maj_longueur_jonctions(jonction_tmp)	; // on calcule la longueur qui la sépare des prochaines jonctions et on reboucle avec la plus courte longueur trouvée
-		// test affichage des jonctions traitées + longueur
-		//printf("\n nom --> %s | longueur --> %d\n", tab_jonctions[jonction_tmp].nom, tab_jonctions[jonction_tmp].longueur);
 		}
 		//printf("\nnom --> %s | longueur --> %d\n", tab_jonctions[point_arrivee].nom, tab_jonctions[point_arrivee].longueur);		// test de longueur finale
 }
@@ -388,6 +387,7 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 		int jonction_temp				; /*Jouera le rôle de mémoire temporaire*/
   		int jonction_j1, jonction_j2	; /*seront utilisées pour les calculs de l'affichage du chemin inverse (récupérer les infos depuis les matrices)*/
   		int nb_jonctions_afficher=1		; 
+  		int save_test = NON_TROUVE		;
   		
   		etapes[0]=num_jonction_arrivee		; /*on met la jonction d'arrivée dans la 1ère case du tableau*/
   		jonction_temp=num_jonction_arrivee	; /*Initailisation de la variable avec la valeur de num_jonction_arrivee*/
@@ -397,9 +397,15 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
     		etapes[nb_jonctions_afficher++]=jonction_temp			; /*on commence par mettre le num de la jonction d'arrivée dans la case avec l'indice 1 et on boucle tant que la condition est respectée*/
       		jonction_temp = tab_jonctions[jonction_temp].antecedent ; /*on affecte le prédecesseur à jonction_temp pour remonter jusqu'au point de départ */
     	}
-    
-	    printf("Voici le plus court chemin pour aller de : \n %s \n à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
-
+    	
+    	if (choix_mode == 1) 
+	    {
+	    	printf("À pied, ");
+	    } else {
+	    	printf("En voiture, ");
+	    }
+	    printf("voici le plus court chemin pour aller de : \n %s \n\t à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
+	    
 	    for(int i=nb_jonctions_afficher-1; i>0; i--) /*On commence une case */
 	    { 
 	    	jonction_j1 = etapes[i]	;	 /*On affecte à jonction_j1 le numéro de la jonction qui se trouve dans la case i*/	
@@ -430,7 +436,92 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
         		} 
       		}
     	}
+    	while (save_test != 0 && save_test != 1) {
+    		printf("Voulez-vous sauvegarder le trajet dans un fichier ? (tapez 0 pour Non, 1 pour Oui) : ")		;
+    		scanf("%d", &save_test)																				;
+    		
+    		switch(save_test){
+    			case 0 : 
+    				printf("Trajet non sauvegardé.\n")	;
+    				break 								;
+    			case 1 : 
+    				save_trajet(num_jonction_depart, num_jonction_arrivee, choix_mode) 	;
+    				break 																;
+    			default :
+    				printf("Merci de choisir 0 ou 1.\n") 	;
+    				purge() 								;
+    		}
+    	}
   	}
+}
+
+/* sauvegarde du trajet dans un fichier */
+void save_trajet(int num_jonction_depart, int num_jonction_arrivee, int choix_mode) {
+
+	int etapes[NB_JONCTIONS]    			; /*Tableau pour stocker le chemin qui mène du point de départ au point d'arrivée (dans le sens inverse)*/
+	int jonction_temp						; /*Jouera le rôle de mémoire temporaire*/
+	int jonction_j1, jonction_j2			; /*seront utilisées pour les calculs de l'affichage du chemin inverse (récupérer les infos depuis les matrices)*/
+	int nb_jonctions_afficher=1				; 
+	FILE *fichier_trajet					;
+	char nom_fichier[TAILLE_NOM_FICHIER] = "sauvegarde_trajet/"	;
+	char tmp[TAILLE_NOM_FICHIER] 								;
+
+	printf("Entrez le nom du fichier (avec l'extension .txt à la fin) où vous souhaitez sauvegarder le trajet. Exemple : mon_trajet.txt\nNom du fichier : ");
+	purge() ;
+	recup_saisie_user(tmp)		;
+	strcat(nom_fichier, tmp)	;
+
+	fichier_trajet = fopen(nom_fichier, "w") 		; // création fichier en écriture
+
+	etapes[0]=num_jonction_arrivee					; /*on met la jonction d'arrivée dans la 1ère case du tableau*/
+	jonction_temp=num_jonction_arrivee				; /*Initailisation de la variable avec la valeur de num_jonction_arrivee*/
+		
+	while (jonction_temp != NON_TROUVE) 
+	{ 
+		etapes[nb_jonctions_afficher++]=jonction_temp			; /*on commence par mettre le num de la jonction d'arrivée dans la case avec l'indice 1 et on boucle tant que la condition est respectée*/
+  		jonction_temp = tab_jonctions[jonction_temp].antecedent ; /*on affecte le prédecesseur à jonction_temp pour remonter jusqu'au point de départ */
+	}
+
+	if (choix_mode == 1) 
+	    {
+	    	fprintf(fichier_trajet, "À pied, ");
+	    } else {
+	    	fprintf(fichier_trajet, "En voiture, ");
+	    }
+    fprintf(fichier_trajet, "voici le plus court chemin pour aller de : \n %s \n\t à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
+
+    for(int i=nb_jonctions_afficher-1; i>0; i--) /*On commence une case */
+    { 
+    	jonction_j1 = etapes[i]	;	 /*On affecte à jonction_j1 le numéro de la jonction qui se trouve dans la case i*/	
+      	if(jonction_j1 == num_jonction_arrivee)	 /*On teste si jonction_j1 est la jonction d'arrivée. Si oui, on arrête l'affichage et on lui affiche le récapitulatif du trajet*/
+      	{
+       		fprintf(fichier_trajet, "\nVous êtes arrivé(e) à %s.\nDistance totale parcourue (en mètres) : %d\n",tab_jonctions[jonction_j1].nom, tab_jonctions[num_jonction_arrivee].longueur)		;
+      	} else { 
+      		jonction_j2 = etapes[i-1]			;	/*jonction_j2 se voit affecter le numéro de jonction qui se trouve en i-1*/
+        	fprintf(fichier_trajet, "de %-70s  ",tab_jonctions[jonction_j1].nom);
+        
+       		/*test si mode 1 ou mode 2 : peut avoir un impact sur l'affichage*/
+        	if (choix_mode==1)
+        	{	/*Mode piéton: n'a pas d'impact sur l'affichage car les matrices sont symétriques*/
+        		fprintf(fichier_trajet, "suivre %-30s  ",tab_noms_rues[jonction_j1][jonction_j2])				;
+	        	fprintf(fichier_trajet, "vers %-70s  ",tab_jonctions[jonction_j2].nom)        					;
+	        	fprintf(fichier_trajet, "[Distance : %3d mètres]\n",tab_longueur[jonction_j1][jonction_j2])   	;
+	        } else { 		/*si le mode de transport est voiture, alors on teste si c'est un sens interdit pour récupérer les bonnes informations. Sinon, on risque de se retrouver avec des 9999 ou des INFINI comme valeurs*/
+	        	if (tab_longueur[jonction_j1][jonction_j2] != INFINI)
+	        	{							/*si le sens de circulation va de J1 à J2*/
+		        	fprintf(fichier_trajet, "suivre %-30s  ",tab_noms_rues[jonction_j1][jonction_j2])				;
+	        		fprintf(fichier_trajet, "vers %-70s  ",tab_jonctions[jonction_j2].nom)        					;
+	        		fprintf(fichier_trajet, "[Distance : %3d mètres]\n",tab_longueur[jonction_j1][jonction_j2])  	;
+	        	} else { 	/*si le sens de circulation va de J2 à J1*/
+		        	fprintf(fichier_trajet, "suivre %-30s  ",tab_noms_rues[jonction_j2][jonction_j1])				;
+	        		fprintf(fichier_trajet, "vers %-70s  ",tab_jonctions[jonction_j2].nom)        					;
+	        		fprintf(fichier_trajet, "[Distance : %3d mètres]\n",tab_longueur[jonction_j2][jonction_j1])  	;
+        		}
+    		} 
+  		}
+	}
+	fclose(fichier_trajet) ;
+	printf("Votre fichier à été sauvegardé sous --> %s\n", nom_fichier);
 }
 
 /* purge de saisie */
