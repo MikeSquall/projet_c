@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
 			printf("\n0 - Quitter le programme\n")											;
 			printf("\nVotre choix : ")														;
 			scanf("%d", &choix_menu)														;
-			purge()																			;
+			//purge()																			;
 			printf("\n")																	;
 
 			switch (choix_menu) 
@@ -112,8 +112,8 @@ int main(int argc, char const *argv[])
 						dijkstra(point_arrivee)									; // fonction qui utilise l'algo de Dijkstra
 						affiche_chemin(point_depart, point_arrivee, choix_mode) ; // affichage 
 						itineraire_de_base_calcule = 1 							;
-						retour_checked = NON_TROUVE								;
-						alternatif_checked = NON_TROUVE 						;
+						retour_checked = NON_TROUVE								; // ré-init de la variable pour faire le retour sur nouvel itinéraire
+						alternatif_checked = NON_TROUVE 						; // ré-init de la variable pour faire alternatif sur nouvel itinéraire
 					}
 
 					break ;
@@ -388,6 +388,7 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
 		int jonction_temp				; /*Jouera le rôle de mémoire temporaire*/
   		int jonction_j1, jonction_j2	; /*seront utilisées pour les calculs de l'affichage du chemin inverse (récupérer les infos depuis les matrices)*/
   		int nb_jonctions_afficher=1		; 
+  		int save_test = NON_TROUVE		;
   		
   		etapes[0]=num_jonction_arrivee		; /*on met la jonction d'arrivée dans la 1ère case du tableau*/
   		jonction_temp=num_jonction_arrivee	; /*Initailisation de la variable avec la valeur de num_jonction_arrivee*/
@@ -436,7 +437,22 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
         		} 
       		}
     	}
-    	save_trajet(num_jonction_depart, num_jonction_arrivee, choix_mode);
+    	while (save_test != 0 && save_test != 1) {
+    		printf("Voulez-vous sauvegarder le trajet dans un fichier ? (tapez 0 pour Non, 1 pour Oui) : ")		;
+    		scanf("%d", &save_test)																				;
+    		
+    		switch(save_test){
+    			case 0 : 
+    				printf("Trajet non sauvegardé.\n")	;
+    				break 								;
+    			case 1 : 
+    				save_trajet(num_jonction_depart, num_jonction_arrivee, choix_mode) 	;
+    				break 																;
+    			default :
+    				printf("Merci de choisir 0 ou 1.\n") 	;
+    				purge() 								;
+    		}
+    	}
   	}
 }
 
@@ -506,6 +522,7 @@ void save_trajet(int num_jonction_depart, int num_jonction_arrivee, int choix_mo
   		}
 	}
 	fclose(fichier_trajet) ;
+	printf("Votre fichier à été sauvegardé sous --> %s\n", nom_fichier);
 }
 
 /* purge de saisie */
