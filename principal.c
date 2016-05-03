@@ -397,9 +397,15 @@ void affiche_chemin(int num_jonction_depart, int num_jonction_arrivee, int choix
     		etapes[nb_jonctions_afficher++]=jonction_temp			; /*on commence par mettre le num de la jonction d'arrivée dans la case avec l'indice 1 et on boucle tant que la condition est respectée*/
       		jonction_temp = tab_jonctions[jonction_temp].antecedent ; /*on affecte le prédecesseur à jonction_temp pour remonter jusqu'au point de départ */
     	}
-    
-	    printf("Voici le plus court chemin pour aller de : \n %s \n\t à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
-
+    	
+    	if (choix_mode == 1) 
+	    {
+	    	printf("À pied, ");
+	    } else {
+	    	printf("En voiture, ");
+	    }
+	    printf("voici le plus court chemin pour aller de : \n %s \n\t à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
+	    
 	    for(int i=nb_jonctions_afficher-1; i>0; i--) /*On commence une case */
 	    { 
 	    	jonction_j1 = etapes[i]	;	 /*On affecte à jonction_j1 le numéro de la jonction qui se trouve dans la case i*/	
@@ -461,7 +467,13 @@ void save_trajet(int num_jonction_depart, int num_jonction_arrivee, int choix_mo
   		jonction_temp = tab_jonctions[jonction_temp].antecedent ; /*on affecte le prédecesseur à jonction_temp pour remonter jusqu'au point de départ */
 	}
 
-    fprintf(fichier_trajet, "Voici le plus court chemin pour aller de : \n %s \n\t à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
+	if (choix_mode == 1) 
+	    {
+	    	fprintf(fichier_trajet, "À pied, ");
+	    } else {
+	    	fprintf(fichier_trajet, "En voiture, ");
+	    }
+    fprintf(fichier_trajet, "voici le plus court chemin pour aller de : \n %s \n\t à %s \n\n", tab_jonctions[num_jonction_depart].nom, tab_jonctions[num_jonction_arrivee].nom)					;
 
     for(int i=nb_jonctions_afficher-1; i>0; i--) /*On commence une case */
     { 
