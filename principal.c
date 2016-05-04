@@ -81,6 +81,7 @@ int main(int argc, char const *argv[])
 		printf("\nBienvenue dans le programme de calcul du chemin le plus court.\nCe programme vous donnera le trajet le plus court entre 2 intersections de rues du 11e arrondissement de Paris.\n");
 		
 		while (choix_menu != 0) {
+			choix_menu = NON_TROUVE 														; // on réinitialise la variable pour le cas où on a bouclé
 			printf("\n************** Menu ************** \n")								;
 			printf("1 - Calculer un itinéraire principal\n")								;
 			if (itineraire_de_base_calcule != NON_TROUVE){
