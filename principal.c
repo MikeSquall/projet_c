@@ -256,7 +256,7 @@ int recherche_nom_rue(char contexte[20])
 	int choix = NON_TROUVE, test_saisie_char = 0 				;
 	char nom_rue[TAILLE_NOM_JONCTION]							;
 	char *test, tab_result[NB_JONCTIONS][TAILLE_NOM_JONCTION]	;
-	int test_esp												;
+
 
 	purge(); /*On vide le buffer avant de demander la saisie à l'utilisateur*/
 	while(nb_result == 0){
@@ -313,6 +313,7 @@ int recherche_nom_rue(char contexte[20])
 		if (!choix_ok) 
 		{
 			printf("Choix erroné. Merci de renseigner un numéro valide : ");
+			//printf("%d\n", choix);
 		}
 	}
 	return choix-1;
@@ -535,7 +536,6 @@ void purge() {
 /*fonction pour corriger les caractères spéciaux*/
 void conv_char_speciaux(char saisie[]){
 	int taille, i, nb_rempl=0;
-	char temp;
 
 	taille = strlen(saisie);
 	for (i=0; i<taille; i++){
@@ -558,7 +558,6 @@ void conv_char_speciaux(char saisie[]){
 /*fonction pour remplacer les caractères accentués*/
 char RemplaceLettre(char c)
 {
-    int i;
     char lettre;
     char* liste_equiv = "' -àâäéêèëîïôöûüç";
 
